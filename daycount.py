@@ -1,10 +1,21 @@
 import datetime
 import calendar
+import enum
 
 
 def _next_leap_day(dt: datetime):
     if dt.month == 2 and dt.day == 29:
         return _ensure_leap_day(dt.year + 4)
+
+    if calendar.isleap(dt.year) and dt.month <= 2:
+        return datetime.datetime(dt.year, 2, 29)
+
+    return _ensure_leap_day(((dt.year // 4) * 4) + 4)
+
+
+def _next_or_same_leap_day(dt: datetime):
+    if dt.month == 2 and dt.day == 29:
+        return dt
 
     if calendar.isleap(dt.year) and dt.month <= 2:
         return datetime.datetime(dt.year, 2, 29)
@@ -29,11 +40,51 @@ def _ordinal_diff(d1: datetime, d2: datetime):
     return d2.toordinal() - d1.toordinal()
 
 
+def _thirty_360_diff(y1, m1, d1, y2, m2, d2):
+    return 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)
+
+
+def _length_of_year(dt: datetime):
+    return 366 if calendar.isleap(dt.year) else 365
+
+
+def _doy(dt: datetime):
+    if calendar.isleap(dt.year):
+        lookup = [0, 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
+    else:
+        lookup = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+    return lookup[dt.month] + dt.day
+
+
+def _last_day_of_feb(dt: datetime):
+    return dt.month == 2 and dt.day == calendar.monthrange(dt.year, dt.month)[1]
+
+
+class DayCountType(enum.Enum):
+    ONE_ONE = enum.auto()
+    ACT_ACT_ISDA = enum.auto()
+    ACT_ACT_AFB = enum.auto()
+    ACT_ACT_YEAR = enum.auto()
+    ACT_365_ACTUAL = enum.auto()
+    ACT_360 = enum.auto()
+    ACT_364 = enum.auto()
+    ACT_365F = enum.auto()
+    ACT_365_25 = enum.auto()
+    NL_360 = enum.auto()
+    NL_365 = enum.auto()
+    THIRTY_360_ISDA = enum.auto()
+    THIRTY_U_360_EOM = enum.auto()
+    THIRTY_360_PSA = enum.auto()
+    THIRTY_E_360 = enum.auto()
+    THIRTY_EPLUS_360 = enum.auto()
+    THIRTY_E_365 = enum.auto()
+
+
 class DayCount(object):
-    def __init__(self, typ):
-        self._type = typ
-        self._year_frac = getattr(self, f"_{typ}_year_fraction")
-        self._days = getattr(self, f"_{typ}_days")
+    def __init__(self, typ: DayCountType):
+        self._type = typ.name
+        self._year_frac = getattr(self, f"_{self._type.lower()}_year_fraction")
+        self._days = getattr(self, f"_{self._type.lower()}_days")
 
     def year_fraction(self, d1: datetime, d2: datetime):
         return self._year_frac(d1, d2)
@@ -41,47 +92,195 @@ class DayCount(object):
     def days(self, d1: datetime, d2: datetime):
         return self._days(d1, d2)
 
-    def _actual_365_fixed_days(self, d1: datetime, d2: datetime):
+    def _one_one_days(self, d1: datetime, d2: datetime):
+        return 1
+
+    def _one_one_year_fraction(self, d1: datetime, d2: datetime):
+        return 1.0
+
+    def _act_act_isda_days(self, d1: datetime, d2: datetime):
         return _ordinal_diff(d1, d2)
 
-    def _actual_365_fixed_year_fraction(self, d1: datetime, d2: datetime):
+    def _act_act_isda_year_fraction(self, d1: datetime, d2: datetime):
+        yr1 = d1.year
+        yr2 = d2.year
+        first_year_len = _length_of_year(yr1)
+
+        if yr1 == yr2:
+            return (_doy(d2) - _doy(d1)) / first_year_len
+
+        first_rem_year = first_year_len - _doy(d1) + 1
+        second_rem_year = _doy(d2) - 1
+        second_year_len = _length_of_year(d2)
+
+        return (first_rem_year / first_year_len) + (second_rem_year / second_year_len) + (yr2 - yr1 - 1)
+
+    def _act_act_afb_days(self, d1: datetime, d2: datetime):
+        return _ordinal_diff(d1, d2)
+
+    def _act_act_afb_year_fraction(self, d1: datetime, d2: datetime):
+        end = d2
+        start = datetime.datetime(d2.year - 1, d2.month, d2.day)
+
+        years = 0
+        while start >= d1:
+            years += 1
+            end = start
+            start = datetime.datetime(d2.year + 1, d2.month, d2.day)
+
+        actual_days = _ordinal_diff(d1, end)
+        next_leap = _next_or_same_leap_day(d1)
+        return years + (actual_days / (366.0 if next_leap < end else 365.0))
+
+    def _act_act_year_days(self, d1: datetime, d2: datetime):
+        return _ordinal_diff(d1, d2)
+
+    def _act_act_year_year_fraction(self, d1: datetime, d2: datetime):
+        start_dt = d1
+        years_added = 0
+        while d2 > datetime.datetime(start_dt.year + 1, start_dt.month, start_dt.day):
+            years_added += 1
+            start_dt = datetime.datetime(d1.year + years_added, d1.month, d1.day)
+        actual_days = _ordinal_diff(start_dt, d2)
+        actual_days_year = _ordinal_diff(start_dt, datetime.datetime(start_dt.year + 1, start_dt.month, start_dt.day))
+        return years_added + (actual_days / actual_days_year)
+
+    def _act_360_days(self, d1: datetime, d2: datetime):
+        return _ordinal_diff(d1, d2)
+
+    def _act_360_year_fraction(self, d1: datetime, d2: datetime):
+        return self._act_360_days(d1, d2) / 360.0
+
+    def _act_364_days(self, d1: datetime, d2: datetime):
+        return _ordinal_diff(d1, d2)
+
+    def _act_364_year_fraction(self, d1: datetime, d2: datetime):
+        return self._act_364_days(d1, d2) / 364.0
+
+    def _act_365f_days(self, d1: datetime, d2: datetime):
+        return _ordinal_diff(d1, d2)
+
+    def _act_365f_year_fraction(self, d1: datetime, d2: datetime):
         return self._actual_365_fixed_days(d1, d2) / 365.0
 
-    def _actual_364_days(self, d1: datetime, d2: datetime):
+    def _act_365_actual_days(self, d1: datetime, d2: datetime):
         return _ordinal_diff(d1, d2)
 
-    def _actual_364_year_fraction(self, d1: datetime, d2: datetime):
-        return self._actual_364_days(d1, d2) / 364.0
+    def _act_365_actual_year_fraction(self, d1: datetime, d2: datetime):
+        diff = self._act_365_actual_days(d1, d2)
+        next_leap = _next_leap_day(d1)
+        return diff / (365.0 if next_leap > d2 else 366.0)
 
-    def _actual_365_25_days(self, d1: datetime, d2: datetime):
+    def _act_365_25_days(self, d1: datetime, d2: datetime):
         return _ordinal_diff(d1, d2)
 
-    def _actual_365_25_year_fraction(self, d1: datetime, d2: datetime):
-        self._actual_365_25_days(d1, d2) / 365.25
+    def _act_365_25_year_fraction(self, d1: datetime, d2: datetime):
+        self._act_365_25_days(d1, d2) / 365.25
 
-    def _actual_360_days(self, d1: datetime, d2: datetime):
-        return _ordinal_diff(d1, d2)
-
-    def _actual_360_year_fraction(self, d1: datetime, d2: datetime):
-        return self._actual_360_days(d1, d2) / 360.0
-
-    def _no_leap_365_days(self, d1: datetime, d2: datetime):
+    def _nl_360_days(self, d1: datetime, d2: datetime):
         return _ordinal_diff(d1, d2) - _number_of_leap_days(d1, d2)
 
-    def _no_leap_365_year_fraction(self, d1: datetime, d2: datetime):
-        return self._no_leap_365_days(d1, d2) / 365.0
+    def _nl_360_year_fraction(self, d1: datetime, d2: datetime):
+        return self._nl_360_days(d1, d2) / 360.0
 
-    def _no_leap_360_days(self, d1: datetime, d2: datetime):
+    def _nl_365_days(self, d1: datetime, d2: datetime):
         return _ordinal_diff(d1, d2) - _number_of_leap_days(d1, d2)
 
-    def _no_leap_360_year_fraction(self, d1: datetime, d2: datetime):
-        return self._no_leap_360_days(d1, d2) / 360.0
+    def _nl_365_year_fraction(self, d1: datetime, d2: datetime):
+        return self._nl_365_days(d1, d2) / 365.0
+
+    def _thirty_360_isda_days(self, d1: datetime, d2: datetime):
+        dt1 = d1.month
+        dt2 = d2.month
+
+        if dt1 == 31:
+            dt1 = 30
+        if dt2 == 31 and dt1 == 30:
+            dt2 = 30
+        return _thirty_360_diff(d1.year, d1.month, dt1, d2.year, d2.month, dt2)
+
+    def _thirty_360_isda_year_fraction(self, d1: datetime, d2: datetime):
+        self._thirty_360_isda_days(d1, d2) / 360.0
+
+    def _thirty_u_360_eom_days(self, d1: datetime, d2: datetime):
+        dt1 = d1.day
+        dt2 = d2.day
+
+        if _last_day_of_feb(d1):
+            if _last_day_of_feb(d2):
+                dt2 = 30
+            dt1 = 30
+
+        if dt1 == 31:
+            dt1 = 30
+        if dt2 == 31 and dt1 == 30:
+            dt2 = 30
+        return _thirty_360_diff(d1.year, d1.month, dt1, d2.year, d2.month, dt2)
+
+    def _thirty_u_360_eom_year_fraction(self, d1: datetime, d2: datetime):
+        self._thirty_u_360_eom_days(d1, d2) / 360.0
+
+    def _thirty_360_psa_days(self, d1: datetime, d2: datetime):
+        dt1 = d1.day
+        dt2 = d2.day
+
+        if dt1 == calendar.monthrange(d1.year, d1.month)[1]:
+            dt1 = 30
+        if dt2 == 31 and dt1 == 30:
+            dt2 = 30
+        return _thirty_360_diff(d1.year, d1.month, dt1, d2.year, d2.month, dt2)
+
+    def _thirty_360_psa_year_fraction(self, d1: datetime, d2: datetime):
+        return self._thirty_360_psa_days(d1, d2) / 360.0
+
+    def _thirty_e_360_days(self, d1: datetime, d2: datetime):
+        dt1 = d1.day
+        dt2 = d2.day
+
+        if dt1 == 31:
+            dt1 = 30
+        if dt2 == 31:
+            dt2 = 30
+        return _thirty_360_diff(d1.year, d1.month, dt1, d2.year, d2.month, dt2)
+
+    def _thirty_e_360_year_fraction(self, d1: datetime, d2: datetime):
+        return self._thirty_e_360_days(d1, d2) / 360.0
+
+    def _thirty_eplus_360_days(self, d1: datetime, d2: datetime):
+        dt1 = d1.day
+        dt2 = d2.day
+        mn1 = d1.month
+        mn2 = d2.month
+
+        if dt1 == 31:
+            dt1 = 30
+        if dt2 == 31:
+            dt2 = 1
+            mn2 += 1
+        return _thirty_360_diff(d1.year, mn1, dt1, d2.year, mn2, dt2)
+
+    def _thirty_eplus_360_year_fraction(self, d1: datetime, d2: datetime):
+        return self._thirty_eplus_360_days(d1, d2) / 360.0
+
+    def _thirty_e_365_days(self, d1: datetime, d2: datetime):
+        dt1 = d1.day
+        dt2 = d2.day
+
+        if dt1 == calendar.monthrange(dt1.year, dt1.month)[1]:
+            dt1 = 30
+        if dt2 == calendar.monthrange(dt2.year, dt2.month)[1]:
+            dt2 = 30
+        return _thirty_360_diff(d1.year, d1.month, dt1, d2.year, d2.month, dt2)
+
+    def _thirty_e_365_year_fraction(self, d1: datetime, d2: datetime):
+        self._thirty_e_365_days(d1, d2) / 365.0
 
 
 if __name__ == '__main__':
     d1 = datetime.datetime(2023, 1, 23)
     d2 = datetime.datetime(2023, 12, 20)
 
-    dc = DayCount('actual_365_fixed')
+    dct = DayCountType.THIRTY_E_360
+    dc = DayCount(dct)
     print(dc.days(d1, d2))
     print(dc.year_fraction(d1, d2))
