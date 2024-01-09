@@ -267,14 +267,14 @@ class DayCount(object):
         dt1 = d1.day
         dt2 = d2.day
 
-        if dt1 == calendar.monthrange(dt1.year, dt1.month)[1]:
+        if dt1 == calendar.monthrange(d1.year, d1.month)[1]:
             dt1 = 30
-        if dt2 == calendar.monthrange(dt2.year, dt2.month)[1]:
+        if dt2 == calendar.monthrange(d2.year, d2.month)[1]:
             dt2 = 30
         return _thirty_360_diff(d1.year, d1.month, dt1, d2.year, d2.month, dt2)
 
     def _thirty_e_365_year_fraction(self, d1: datetime, d2: datetime):
-        self._thirty_e_365_days(d1, d2) / 365.0
+        return self._thirty_e_365_days(d1, d2) / 365.0
 
 
 if __name__ == '__main__':
