@@ -1,4 +1,5 @@
 import datetime
+from dateutil.relativedelta import relativedelta
 import calendar
 import enum
 
@@ -24,7 +25,7 @@ def _next_or_same_leap_day(dt: datetime):
 
 
 def _ensure_leap_day(year: int):
-    return datetime.datetime(year, 2, 29) if year.isleap(year) else datetime.datetime(year + 4, 2, 29)
+    return datetime.datetime(year, 2, 29) if calendar.isleap(year) else datetime.datetime(year + 4, 2, 29)
 
 
 def _number_of_leap_days(d1: datetime, d2: datetime):
@@ -104,7 +105,7 @@ class DayCount(object):
     def _act_act_isda_year_fraction(self, d1: datetime, d2: datetime):
         yr1 = d1.year
         yr2 = d2.year
-        first_year_len = _length_of_year(yr1)
+        first_year_len = _length_of_year(d1)
 
         if yr1 == yr2:
             return (_doy(d2) - _doy(d1)) / first_year_len
@@ -120,13 +121,13 @@ class DayCount(object):
 
     def _act_act_afb_year_fraction(self, d1: datetime, d2: datetime):
         end = d2
-        start = datetime.datetime(d2.year - 1, d2.month, d2.day)
+        start = d2 - relativedelta(years=1)
 
         years = 0
         while start >= d1:
             years += 1
             end = start
-            start = datetime.datetime(d2.year + 1, d2.month, d2.day)
+            start = d2 - relativedelta(years=years + 1)
 
         actual_days = _ordinal_diff(d1, end)
         next_leap = _next_or_same_leap_day(d1)
@@ -138,11 +139,11 @@ class DayCount(object):
     def _act_act_year_year_fraction(self, d1: datetime, d2: datetime):
         start_dt = d1
         years_added = 0
-        while d2 > datetime.datetime(start_dt.year + 1, start_dt.month, start_dt.day):
+        while d2 > start_dt + relativedelta(years=1):
             years_added += 1
-            start_dt = datetime.datetime(d1.year + years_added, d1.month, d1.day)
+            start_dt = d1 + relativedelta(years=years_added)
         actual_days = _ordinal_diff(start_dt, d2)
-        actual_days_year = _ordinal_diff(start_dt, datetime.datetime(start_dt.year + 1, start_dt.month, start_dt.day))
+        actual_days_year = _ordinal_diff(start_dt, start_dt + relativedelta(years=1))
         return years_added + (actual_days / actual_days_year)
 
     def _act_360_days(self, d1: datetime, d2: datetime):
@@ -161,7 +162,7 @@ class DayCount(object):
         return _ordinal_diff(d1, d2)
 
     def _act_365f_year_fraction(self, d1: datetime, d2: datetime):
-        return self._actual_365_fixed_days(d1, d2) / 365.0
+        return self._act_365f_days(d1, d2) / 365.0
 
     def _act_365_actual_days(self, d1: datetime, d2: datetime):
         return _ordinal_diff(d1, d2)
@@ -175,7 +176,7 @@ class DayCount(object):
         return _ordinal_diff(d1, d2)
 
     def _act_365_25_year_fraction(self, d1: datetime, d2: datetime):
-        self._act_365_25_days(d1, d2) / 365.25
+        return self._act_365_25_days(d1, d2) / 365.25
 
     def _nl_360_days(self, d1: datetime, d2: datetime):
         return _ordinal_diff(d1, d2) - _number_of_leap_days(d1, d2)
@@ -190,8 +191,8 @@ class DayCount(object):
         return self._nl_365_days(d1, d2) / 365.0
 
     def _thirty_360_isda_days(self, d1: datetime, d2: datetime):
-        dt1 = d1.month
-        dt2 = d2.month
+        dt1 = d1.day
+        dt2 = d2.day
 
         if dt1 == 31:
             dt1 = 30
@@ -200,7 +201,7 @@ class DayCount(object):
         return _thirty_360_diff(d1.year, d1.month, dt1, d2.year, d2.month, dt2)
 
     def _thirty_360_isda_year_fraction(self, d1: datetime, d2: datetime):
-        self._thirty_360_isda_days(d1, d2) / 360.0
+        return self._thirty_360_isda_days(d1, d2) / 360.0
 
     def _thirty_u_360_eom_days(self, d1: datetime, d2: datetime):
         dt1 = d1.day
