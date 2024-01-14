@@ -6,6 +6,25 @@ import enum
 from dateutil.relativedelta import relativedelta
 
 
+def easter(year: int) -> datetime:
+    a = year % 19
+    b = year // 100
+    c = year % 100
+    d = b // 4
+    e = b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = divmod(c, 4)
+    # i = c // 4
+    # k = c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month = (h + l - 7 * m + 114) // 31
+    day = ((h + l - 7 * m + 114) % 31) + 1
+    return datetime.datetime(year, month, day)
+
+
 def rem_sat_sun(holidays) -> Set:
     return {x for x in holidays if x.weekday() not in (5, 6)}
 
@@ -102,6 +121,9 @@ def us_common(holidays: Set, year: int, bump_back: bool, columbus_veteran: bool,
 
 class HolidayCalendarType(enum.Enum):
     USNY = enum.auto()
+    USGS = enum.auto()
+    NYFD = enum.auto()
+    NYSE = enum.auto()
 
 
 class HolidayCalendar(object):
@@ -111,6 +133,107 @@ class HolidayCalendar(object):
         holidays = set()
         for y in range(1950, 2100):
             us_common(holidays, y, False, True, 1986)
+        holidays = rem_sat_sun(holidays)
+        return holidays
+
+    def gen_usgs(self):
+        holidays = set()
+        for y in range(1950, 2100):
+            us_common(holidays, y, True, True, 1986)
+            holidays.add(easter(y) - relativedelta(days=2))
+
+        # Hurricane sandy
+        holidays.add(datetime.datetime(2012, 10, 30))
+        # George H W Bush Death
+        holidays.add(datetime.datetime(y, 12, 5))
+
+        holidays = rem_sat_sun(holidays)
+        return holidays
+
+    def gen_nyfd(self):
+        holidays = set()
+        for y in range(1950, 2100):
+            us_common(holidays, y, False, True, 1986)
+        holidays = rem_sat_sun(holidays)
+        return holidays
+
+    def gen_nyse(self):
+        holidays = set()
+        for y in range(1950, 2100):
+            us_common(holidays, y, True, False, 1998)
+            holidays.add(easter(y) - relativedelta(days=2))
+
+        # Lincoln day 1896 - 1953
+        # Columbus day 1909 - 1953
+        # Veterans day 1934 - 1953
+        for y in range(1950, 1953 + 1):
+            holidays.add(datetime.datetime(y, 2, 12))
+            holidays.add(datetime.datetime(y, 10, 12))
+            holidays.add(datetime.datetime(y, 11, 11))
+
+        # Election day, Tue after first Monday of November
+        for y in range(1950, 1968 + 1):
+            holidays.add(first_in_month(y, 11, 0) + relativedelta(days=1))
+
+        holidays.add(datetime.datetime(1972, 11, 7))
+        holidays.add(datetime.datetime(1976, 11, 2))
+        holidays.add(datetime.datetime(1980, 11, 4))
+        # special days
+        holidays.add(datetime.datetime(1955, 12, 24))  # Christmas Eve
+        holidays.add(datetime.datetime(1956, 12, 24))  # Christmas Eve
+        holidays.add(datetime.datetime(1958, 12, 26))  # Day after Christmas
+        holidays.add(datetime.datetime(1961, 5, 29))  # Decoration day
+        holidays.add(datetime.datetime(1963, 11, 25))  # Death of John F Kennedy
+        holidays.add(datetime.datetime(1965, 12, 24))  # Christmas Eve
+        holidays.add(datetime.datetime(1968, 2, 12))  # Lincoln birthday
+        holidays.add(datetime.datetime(1968, 4, 9))  # Death of Martin Luther King
+        holidays.add(datetime.datetime(1968, 6, 12))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 6, 19))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 6, 26))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 7, 3))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 7, 5))  # Day after independence
+        holidays.add(datetime.datetime(1968, 7, 10))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 7, 17))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 7, 24))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 7, 31))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 8, 7))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 8, 13))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 8, 21))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 8, 28))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 9, 4))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 9, 11))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 9, 18))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 9, 25))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 10, 2))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 10, 9))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 10, 16))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 10, 23))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 10, 30))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 11, 6))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 11, 13))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 11, 20))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 11, 27))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 12, 4))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 12, 11))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 12, 18))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 12, 25))  # Paperwork crisis
+        holidays.add(datetime.datetime(1968, 12, 31))  # Paperwork crisis
+        holidays.add(datetime.datetime(1969, 2, 10))  # Snow
+        holidays.add(datetime.datetime(1969, 3, 31))  # Death of Dwight Eisenhower
+        holidays.add(datetime.datetime(1969, 7, 21))  # Lunar exploration
+        holidays.add(datetime.datetime(1972, 12, 28))  # Death of Harry Truman
+        holidays.add(datetime.datetime(1973, 1, 25))  # Death of Lyndon Johnson
+        holidays.add(datetime.datetime(1977, 7, 14))  # Blackout
+        holidays.add(datetime.datetime(1985, 9, 27))  # Hurricane Gloria
+        holidays.add(datetime.datetime(1994, 4, 27))  # Death of Richard Nixon
+        holidays.add(datetime.datetime(2001, 9, 11))  # 9 / 11 attack
+        holidays.add(datetime.datetime(2001, 9, 12))  # 9 / 11 attack
+        holidays.add(datetime.datetime(2001, 9, 13))  # 9 / 11 attack
+        holidays.add(datetime.datetime(2001, 9, 14))  # 9 / 11 attack
+        holidays.add(datetime.datetime(2004, 6, 11))  # Death of Ronald Reagan
+        holidays.add(datetime.datetime(2007, 1, 2))  # Death of Gerald Ford
+        holidays.add(datetime.datetime(2012, 10, 30))  # Hurricane Sandy
+        holidays.add(datetime.datetime(2018, 12, 5))  # Death of George H.W.Bush
         holidays = rem_sat_sun(holidays)
         return holidays
 
