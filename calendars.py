@@ -147,6 +147,7 @@ class HolidayCalendarType(enum.Enum):
     NYFD = enum.auto()
     NYSE = enum.auto()
     GBLO = enum.auto()
+    EUTA = enum.auto()
 
 
 class HolidayCalendar(object):
@@ -159,7 +160,8 @@ class HolidayCalendar(object):
         holidays = rem_sat_sun(holidays)
         return holidays
 
-    def gen_usgs(self):
+    @staticmethod
+    def gen_usgs():
         holidays = set()
         for y in range(1950, 2100):
             us_common(holidays, y, True, True, 1986)
@@ -173,14 +175,16 @@ class HolidayCalendar(object):
         holidays = rem_sat_sun(holidays)
         return holidays
 
-    def gen_nyfd(self):
+    @staticmethod
+    def gen_nyfd():
         holidays = set()
         for y in range(1950, 2100):
             us_common(holidays, y, False, True, 1986)
         holidays = rem_sat_sun(holidays)
         return holidays
 
-    def gen_nyse(self):
+    @staticmethod
+    def gen_nyse():
         holidays = set()
         for y in range(1950, 2100):
             us_common(holidays, y, True, False, 1998)
@@ -260,7 +264,8 @@ class HolidayCalendar(object):
         holidays = rem_sat_sun(holidays)
         return holidays
 
-    def gen_gblo(self):
+    @staticmethod
+    def gen_gblo():
         holidays = set()
         for y in range(1950, 2100):
             # New Year
@@ -318,6 +323,25 @@ class HolidayCalendar(object):
         holidays.add(datetime.datetime(2023, 5, 8))  # king's coronation
 
         rem_sat_sun(holidays)
+        return holidays
+
+    @staticmethod
+    def gen_euta():
+        holidays = set()
+        for y in range(1997, 2100):
+            if y >= 2000:
+                holidays.add(datetime.datetime(y, 1, 1))
+                holidays.add(easter(y) - relativedelta(days=2))
+                holidays.add(easter(y) + relativedelta(days=1))
+                holidays.add(datetime.datetime(y, 5, 1))
+                holidays.add(datetime.datetime(y, 12, 25))
+                holidays.add(datetime.datetime(y, 12, 26))
+            else:  # 1997 to 1999
+                holidays.add(datetime.datetime(y, 1, 1))
+                holidays.add(datetime.datetime(y, 12, 25))
+            if y == 1999 or y == 2001:
+                holidays.add(datetime.datetime(y, 12, 31))
+        holidays = rem_sat_sun(holidays)
         return holidays
 
     def __init__(self, name: HolidayCalendarType):

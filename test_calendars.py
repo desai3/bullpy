@@ -98,6 +98,22 @@ class CalData(object):
             2022: [(1, 3), (4, 15), (4, 18), (5, 2), (6, 2), (6, 3), (8, 29), (9, 19), (12, 26), (12, 27)],
             2023: [(1, 2), (4, 7), (4, 10), (5, 1), (5, 8), (5, 29), (8, 28), (12, 25), (12, 26)]}
 
+        self.euta = {  # 1997 - 1998(testing phase), Jan 1, christmas day
+            1997: [(1, 1), (12, 25)],
+            1998: [(1, 1), (12, 25)],
+            # in 1999, Jan 1, christmas day, Dec 26, Dec 31
+            1999: [(1, 1), (12, 25), (12, 31)],
+            # in 2000, Jan 1, good friday, easter monday, May 1, christmas day, Dec 26
+            2000: [(1, 1), (4, 21), (4, 24), (5, 1), (12, 25), (12, 26)],
+            # in 2001, Jan 1, good friday, easter monday, May 1, christmas day, Dec 26, Dec 31
+            2001: [(1, 1), (4, 13), (4, 16), (5, 1), (12, 25), (12, 26), (12, 31)],
+            # from 2002, Jan 1, good friday, easter monday, May 1, christmas day, Dec 26
+            2002: [(1, 1), (3, 29), (4, 1), (5, 1), (12, 25), (12, 26)],
+            2003: [(1, 1), (4, 18), (4, 21), (5, 1), (12, 25), (12, 26)],
+            # http: // www.ecb.europa.eu / home / html / holidays.en.html
+            2014: [(1, 1), (4, 18), (4, 21), (5, 1), (12, 25), (12, 26)],
+            2015: [(1, 1), (4, 3), (4, 6), (5, 1), (12, 25), (12, 26)]}
+
     def data(self):
         hl = getattr(self, self._type.name.lower())
         return hl
@@ -123,7 +139,7 @@ def test_cal(ct):
 
 def test_default_calendars():
     cal_types = [HolidayCalendarType.USNY, HolidayCalendarType.USGS, HolidayCalendarType.NYFD, HolidayCalendarType.NYSE,
-                 HolidayCalendarType.GBLO]
+                 HolidayCalendarType.GBLO, HolidayCalendarType.EUTA]
     for ct in cal_types:
         test_cal(ct)
 
