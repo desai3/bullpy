@@ -70,6 +70,34 @@ class CalData(object):
                      2014: [(1, 1), (1, 20), (2, 17), (4, 18), (5, 26), (7, 4), (9, 1), (11, 27), (12, 25)],
                      2015: [(1, 1), (1, 19), (2, 16), (4, 3), (5, 25), (7, 3), (9, 7), (11, 26), (12, 25)]}
 
+        self.gblo = {
+            # Whitsun, Last Mon Aug - http://hansard.millbanksystems.com/commons/1964/mar/04/staggered-holidays
+            1965: [(4, 16), (4, 19), (6, 7), (8, 30), (12, 27), (12, 28)],
+            # Whitsun May - http://hansard.millbanksystems.com/commons/1964/mar/04/staggered-holidays
+            # 29th Aug - http://hansard.millbanksystems.com/written_answers/1965/nov/25/august-bank-holiday
+            1966: [(4, 8), (4, 11), (5, 30), (8, 29), (12, 26), (12, 27)],
+            # 29th May, 28th Aug - http://hansard.millbanksystems.com/written_answers/1965/jun/03/bank-holidays-1967-and-1968
+            1967: [(3, 24), (3, 27), (5, 29), (8, 28), (12, 25), (12, 26)],
+            # 3rd Jun, 2nd Sep - http://hansard.millbanksystems.com/written_answers/1965/jun/03/bank-holidays-1967-and-1968
+            1968: [(4, 12), (4, 15), (6, 3), (9, 2), (12, 25), (12, 26)],
+            # 26th May, 1st Sep - http://hansard.millbanksystems.com/written_answers/1967/mar/21/bank-holidays-1969-dates
+            1969: [(4, 4), (4, 7), (5, 26), (9, 1), (12, 25), (12, 26)],
+            # 25th May, 31st Aug - http://hansard.millbanksystems.com/written_answers/1967/jul/28/bank-holidays
+            1970: [(3, 27), (3, 30), (5, 25), (8, 31), (12, 25), (12, 28)],
+            # applying rules
+            1971: [(4, 9), (4, 12), (5, 31), (8, 30), (12, 27), (12, 28)],
+            2009: [(1, 1), (4, 10), (4, 13), (5, 4), (5, 25), (8, 31), (12, 25), (12, 28)],
+            2010: [(1, 1), (4, 2), (4, 5), (5, 3), (5, 31), (8, 30), (12, 27), (12, 28)],
+            # https://www.gov.uk/bank-holidays
+            2012: [(1, 2), (4, 6), (4, 9), (5, 7), (6, 4), (6, 5), (8, 27), (12, 25), (12, 26)],
+            2013: [(1, 1), (3, 29), (4, 1), (5, 6), (5, 27), (8, 26), (12, 25), (12, 26)],
+            2014: [(1, 1), (4, 18), (4, 21), (5, 5), (5, 26), (8, 25), (12, 25), (12, 26)],
+            2015: [(1, 1), (4, 3), (4, 6), (5, 4), (5, 25), (8, 31), (12, 25), (12, 28)],
+            2016: [(1, 1), (3, 25), (3, 28), (5, 2), (5, 30), (8, 29), (12, 26), (12, 27)],
+            2020: [(1, 1), (4, 10), (4, 13), (5, 8), (5, 25), (8, 31), (12, 25), (12, 28)],
+            2022: [(1, 3), (4, 15), (4, 18), (5, 2), (6, 2), (6, 3), (8, 29), (9, 19), (12, 26), (12, 27)],
+            2023: [(1, 2), (4, 7), (4, 10), (5, 1), (5, 8), (5, 29), (8, 28), (12, 25), (12, 26)]}
+
     def data(self):
         hl = getattr(self, self._type.name.lower())
         return hl
@@ -94,7 +122,8 @@ def test_cal(ct):
 
 
 def test_default_calendars():
-    cal_types = [HolidayCalendarType.USNY, HolidayCalendarType.USGS, HolidayCalendarType.NYFD, HolidayCalendarType.NYSE]
+    cal_types = [HolidayCalendarType.USNY, HolidayCalendarType.USGS, HolidayCalendarType.NYFD, HolidayCalendarType.NYSE,
+                 HolidayCalendarType.GBLO]
     for ct in cal_types:
         test_cal(ct)
 

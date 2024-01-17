@@ -35,6 +35,14 @@ def bump_sun_to_mon(dt: datetime) -> datetime:
     return dt
 
 
+def bump_to_mon(dt: datetime) -> datetime:
+    if dt.weekday() == 5:
+        return dt + relativedelta(days=2)
+    elif dt.weekday() == 6:
+        return dt + relativedelta(days=1)
+    return dt
+
+
 def bump_to_fri_or_mon(dt: datetime) -> datetime:
     if dt.weekday() == 6:
         return dt + relativedelta(days=1)
@@ -42,6 +50,20 @@ def bump_to_fri_or_mon(dt: datetime) -> datetime:
         return dt - relativedelta(days=1)
     else:
         return dt
+
+
+def christmas_bumped_sat_sun(year: int):
+    dt = datetime.datetime(year, 12, 25)
+    if dt.weekday() == 5 or dt.weekday() == 6:
+        return datetime.datetime(year, 12, 27)
+    return dt
+
+
+def boxingday_bumped_sat_sun(year: int):
+    dt = datetime.datetime(year, 12, 26)
+    if dt.weekday() == 5 or dt.weekday() == 6:
+        return datetime.datetime(year, 12, 28)
+    return dt
 
 
 def first_in_month(year: int, month: int, weekday: int) -> datetime:
@@ -124,6 +146,7 @@ class HolidayCalendarType(enum.Enum):
     USGS = enum.auto()
     NYFD = enum.auto()
     NYSE = enum.auto()
+    GBLO = enum.auto()
 
 
 class HolidayCalendar(object):
@@ -235,6 +258,66 @@ class HolidayCalendar(object):
         holidays.add(datetime.datetime(2012, 10, 30))  # Hurricane Sandy
         holidays.add(datetime.datetime(2018, 12, 5))  # Death of George H.W.Bush
         holidays = rem_sat_sun(holidays)
+        return holidays
+
+    def gen_gblo(self):
+        holidays = set()
+        for y in range(1950, 2100):
+            # New Year
+            if y >= 1974:
+                holidays.add(bump_to_mon(datetime.datetime(y, 1, 1)))
+
+            # Easter
+            holidays.add(easter(y) - relativedelta(days=2))
+            holidays.add(easter(y) + relativedelta(days=2))
+
+            # Early may
+            if y == 1995 or y == 2020:
+                holidays.add(datetime.datetime(y, 5, 8))
+            elif y >= 1978:
+                holidays.add(first_in_month(y, 5, 6))
+
+            # Spring
+            if y == 2002:
+                # Golden Jubilee
+                holidays.add(datetime.datetime(2002, 6, 3))
+                holidays.add(datetime.datetime(2002, 6, 4))
+            elif y == 2012:
+                # Diamond Jubilee
+                holidays.add(datetime.datetime(2012, 6, 4))
+                holidays.add(datetime.datetime(2012, 6, 5))
+            elif y == 2022:
+                # Platinum Jubilee
+                holidays.add(datetime.datetime(2022, 6, 2))
+                holidays.add(datetime.datetime(2022, 6, 3))
+            elif y == 1967 or y == 1970:
+                holidays.add(last_in_month(y, 5, 0))
+            elif y < 1971:
+                holidays.add(easter(y) + relativedelta(days=50))
+            else:
+                holidays.add(last_in_month(y, 5, 0))
+
+            # Summer
+            if y < 1965:
+                holidays.add(first_in_month(y, 8, 0))
+            elif y < 1971:
+                holidays.add(last_in_month(y, 8, 5) + relativedelta(days=2))
+            else:
+                holidays.add(last_in_month(y, 8, 0))
+
+            # Queen's funeral
+            if y == 2022:
+                holidays.add(datetime.datetime(2022, 9, 19))
+
+            # Christmas
+            holidays.add(christmas_bumped_sat_sun(y))
+            holidays.add(boxingday_bumped_sat_sun(y))
+
+        holidays.add(datetime.datetime(1999, 12, 31))  # millennium
+        holidays.add(datetime.datetime(2011, 4, 29))  # royal wedding
+        holidays.add(datetime.datetime(2023, 5, 8))  # king's coronation
+
+        rem_sat_sun(holidays)
         return holidays
 
     def __init__(self, name: HolidayCalendarType):
