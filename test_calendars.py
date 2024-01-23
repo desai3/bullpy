@@ -128,7 +128,7 @@ def test_cal(ct):
         hl = {datetime.datetime(yr, x[0], x[1]) for x in data[yr]}
         dt = datetime.datetime(yr, 1, 1)
 
-        assert cal.is_holiday(dt) != cal.is_weekday(dt)
+        assert cal.is_holiday(dt) != cal.is_businessday(dt)
         if cal.is_holiday(dt):
             assert dt in hl or dt.weekday() in (5, 6)
         else:

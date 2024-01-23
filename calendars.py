@@ -351,5 +351,25 @@ class HolidayCalendar(object):
     def is_holiday(self, dt: datetime) -> bool:
         return dt.weekday() in (5, 6) or dt in self._holidays
 
-    def is_weekday(self, dt: datetime) -> bool:
+    def is_businessday(self, dt: datetime) -> bool:
         return not self.is_holiday(dt)
+
+    def next(self, dt: datetime) -> datetime:
+        nxt = dt + relativedelta(days=1)
+        return self.next(nxt) if self.is_holiday(nxt) else nxt
+
+    def previous(self, dt: datetime) -> datetime:
+        prev = dt - relativedelta(days=1)
+        return self.previous(prev) if self.is_holiday(prev) else prev
+
+    def previous_or_same(self, dt: datetime) -> datetime:
+        return self.previous(dt) if self.is_holiday(dt) else dt
+
+    def next_or_same(self, dt: datetime) -> datetime:
+        return self.next(dt) if self.is_holiday(dt) else dt
+
+    def next_or_same_last_in_month(self, dt: datetime) -> datetime:
+        nxt_or_same = self.next_or_same(dt)
+        return self.previous(dt) if nxt_or_same.month() != dt.month() else nxt_or_same
+
+
