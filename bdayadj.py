@@ -1,7 +1,7 @@
 import enum
 import datetime
 
-from .calendars import HolidayCalendar, HolidayCalendarType
+from calendars import HolidayCalendar, HolidayCalendarType
 
 
 class BDayAdjType(enum.Enum):
@@ -19,11 +19,11 @@ class BDayAdj(object):
         self.adj_type = adj_type
 
     def adjust(self, dt: datetime, calendar: HolidayCalendar) -> datetime:
-        return getattr(self, f'adjust_{self.adj_type.name().lower()}')(dt, calendar)
+        return getattr(self, f'adjust_{self.adj_type.name.lower()}')(dt, calendar)
 
     @staticmethod
     def adjust_no_adjust(dt: datetime, calendar: HolidayCalendar) -> datetime:
-        assert isinstance(dt, datetime)
+        assert isinstance(dt, datetime.datetime)
         return dt
 
     @staticmethod
@@ -37,23 +37,23 @@ class BDayAdj(object):
     @staticmethod
     def adjust_modified_following_bi_monthly(dt: datetime, calendar: HolidayCalendar) -> datetime:
         adjusted = calendar.next_or_same(dt)
-        if adjusted.month() != dt.month() or (adjusted.month() > 15 and dt.month() <= 15):
+        if adjusted.month != dt.month or (adjusted.day > 15 and dt.day <= 15):
             adjusted = calendar.previous(adjusted)
         return adjusted
 
     @staticmethod
-    def adjusted_preceding(dt: datetime, calendar: HolidayCalendar) -> datetime:
+    def adjust_preceding(dt: datetime, calendar: HolidayCalendar) -> datetime:
         return calendar.previous_or_same(dt)
 
     @staticmethod
-    def adjusted_modified_preceding(dt: datetime, calendar: HolidayCalendar) -> datetime:
+    def adjust_modified_preceding(dt: datetime, calendar: HolidayCalendar) -> datetime:
         adjusted = calendar.previous_or_same(dt)
-        if adjusted.month() != dt.month():
+        if adjusted.month != dt.month:
             adjusted = calendar.next(dt)
         return adjusted
 
     @staticmethod
-    def adjusted_nearest(dt: datetime, calendar: HolidayCalendar) -> datetime:
+    def adjust_nearest(dt: datetime, calendar: HolidayCalendar) -> datetime:
         if calendar.is_businessday(dt):
             return dt
         if dt.weekday() == 6 or dt.weekday() == 0:

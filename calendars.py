@@ -370,6 +370,10 @@ class HolidayCalendar(object):
 
     def next_or_same_last_in_month(self, dt: datetime) -> datetime:
         nxt_or_same = self.next_or_same(dt)
-        return self.previous(dt) if nxt_or_same.month() != dt.month() else nxt_or_same
+        return self.previous(dt) if nxt_or_same.month != dt.month else nxt_or_same
 
 
+class CustomeHolidayCalendar(HolidayCalendar):
+    def __init__(self, name: str, holidays: Set):
+        self._type = name
+        self._holidays = holidays
