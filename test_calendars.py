@@ -2,7 +2,7 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from calendars import HolidayCalendar, HolidayCalendarType
+from calendars import HolidayCalendar, HolidayCalendarType, CustomeHolidayCalendar
 
 
 class CalData(object):
@@ -142,6 +142,113 @@ def test_default_calendars():
                  HolidayCalendarType.GBLO, HolidayCalendarType.EUTA]
     for ct in cal_types:
         test_cal(ct)
+
+
+def test_next():
+    data = [[datetime.datetime(2014, 7, 10), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 11), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 12), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 13), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 14), datetime.datetime(2014, 7, 15)],
+            [datetime.datetime(2014, 7, 15), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 17), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 19), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 20), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 21), datetime.datetime(2014, 7, 22)]]
+
+    dts = set([datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 31)])
+    custom_cal = CustomeHolidayCalendar('test', dts)
+
+    for d1, d2 in data:
+        assert custom_cal.next(d1) == d2
+
+
+def test_next_or_same():
+    data = [[datetime.datetime(2014, 7, 10), datetime.datetime(2014, 7, 10)],
+            [datetime.datetime(2014, 7, 11), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 12), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 13), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 14), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 15), datetime.datetime(2014, 7, 15)],
+            [datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 17), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 19), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 20), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 21), datetime.datetime(2014, 7, 21)]]
+
+    dts = set([datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 31)])
+    custom_cal = CustomeHolidayCalendar('test', dts)
+
+    for d1, d2 in data:
+        assert custom_cal.next_or_same(d1) == d2
+
+
+def test_previous():
+    data = [[datetime.datetime(2014, 7, 11), datetime.datetime(2014, 7, 10)],
+            [datetime.datetime(2014, 7, 12), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 13), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 14), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 15), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 15)],
+            [datetime.datetime(2014, 7, 17), datetime.datetime(2014, 7, 15)],
+            [datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 19), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 20), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 21), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 22), datetime.datetime(2014, 7, 21)]]
+
+    dts = set([datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 31)])
+    custom_cal = CustomeHolidayCalendar('test', dts)
+
+    for d1, d2 in data:
+        assert custom_cal.previous(d1) == d2
+
+
+def test_previous_or_same():
+    data = [[datetime.datetime(2014, 7, 11), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 12), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 13), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 14), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 15), datetime.datetime(2014, 7, 15)],
+            [datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 15)],
+            [datetime.datetime(2014, 7, 17), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 19), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 20), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 21), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 22), datetime.datetime(2014, 7, 22)]]
+
+    dts = set([datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 31)])
+    custom_cal = CustomeHolidayCalendar('test', dts)
+
+    for d1, d2 in data:
+        assert custom_cal.previous_or_same(d1) == d2
+
+
+def test_next_or_same_last_in_month():
+    data = [[datetime.datetime(2014, 7, 10), datetime.datetime(2014, 7, 10)],
+            [datetime.datetime(2014, 7, 11), datetime.datetime(2014, 7, 11)],
+            [datetime.datetime(2014, 7, 12), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 13), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 14), datetime.datetime(2014, 7, 14)],
+            [datetime.datetime(2014, 7, 15), datetime.datetime(2014, 7, 15)],
+            [datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 17), datetime.datetime(2014, 7, 17)],
+            [datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 19), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 20), datetime.datetime(2014, 7, 21)],
+            [datetime.datetime(2014, 7, 21), datetime.datetime(2014, 7, 21)],
+
+            [datetime.datetime(2014, 7, 31), datetime.datetime(2014, 7, 30)]]
+
+    dts = set([datetime.datetime(2014, 7, 16), datetime.datetime(2014, 7, 18), datetime.datetime(2014, 7, 31)])
+    custom_cal = CustomeHolidayCalendar('test', dts)
+
+    for d1, d2 in data:
+        assert custom_cal.next_or_same_last_in_month(d1) == d2
 
 
 if __name__ == '__main__':
