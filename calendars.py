@@ -148,6 +148,8 @@ class HolidayCalendarType(enum.Enum):
     NYSE = enum.auto()
     GBLO = enum.auto()
     EUTA = enum.auto()
+    CATO = enum.auto()
+    AUSY = enum.auto()
 
 
 class HolidayCalendar(object):
@@ -341,6 +343,91 @@ class HolidayCalendar(object):
                 holidays.add(datetime.datetime(y, 12, 25))
             if y == 1999 or y == 2001:
                 holidays.add(datetime.datetime(y, 12, 31))
+        holidays = rem_sat_sun(holidays)
+        return holidays
+
+    @staticmethod
+    def get_cato():
+        holidays = set()
+        for y in range(1950, 2100):
+            # New Year (Public)
+            holidays.add(bump_to_mon(datetime.datetime(y, 1, 1)))
+            if y >= 2008:
+                holidays.add(day_of_week_in_month(y, 2, 0, 3))
+            # good friday(public)
+            holidays.add(easter(y) - relativedelta(days=2))
+            # victoria(public)
+            cur = datetime.datetime(y, 5, 25)
+            while cur.weekday() != 0:
+                cur -= relativedelta(days=1)
+            holidays.add(cur)
+            # canada(public)
+            holidays.add(bump_to_mon(datetime.datetime(y, 7, 1)))
+            # civic
+            holidays.add(day_of_week_in_month(y, 8, 0, 1))
+            # labour(public)
+            holidays.add(day_of_week_in_month(y, 9, 0, 1))
+            # thanksgiving(public)
+            holidays.add(day_of_week_in_month(y, 10, 0, 2))
+            # remembrance
+            holidays.add(bump_to_mon(datetime.datetime(y, 11, 11)))
+            # christmas(public)
+            holidays.add(christmas_bumped_sat_sun(y))
+            # boxing(public)
+            holidays.add(boxingday_bumped_sat_sun(y))
+        holidays = rem_sat_sun(holidays)
+        return holidays
+
+    @staticmethod
+    def get_camo():
+        holidays = set()
+        for y in range(1950, 2100):
+            # new year
+            holidays.add(bump_to_mon(datetime.datetime(y, 1, 1)))
+            # good friday(public)
+            holidays.add(easter(y) - relativedelta(days=2))
+            # patriots
+            cur = datetime.datetime(y, 5, 25)
+            while cur.weekday() != 0:
+                cur -= relativedelta(days=1)
+            holidays.add(cur)
+            # fete nationale quebec
+            holidays.add(bump_to_mon(datetime.datetime(y, 6, 24)))
+            # canada
+            holidays.add(bump_to_mon(datetime.datetime(y, 7, 1)))
+            # labour
+            holidays.add(day_of_week_in_month(y, 9, 0, 1))
+            # thanksgiving
+            holidays.add(day_of_week_in_month(y, 10, 0, 2))
+            # christmas
+            holidays.add(christmas_bumped_sat_sun(y))
+        holidays = rem_sat_sun(holidays)
+        return holidays
+
+    @staticmethod
+    def gen_ausy():
+        holidays = set()
+        for y in range(1950, 2100):
+            # new year
+            holidays.add(bump_to_mon(datetime.datetime(y, 1, 1)))
+            # australia day
+            holidays.add(bump_to_mon(datetime.datetime(y, 1, 26)));
+            # good friday
+            holidays.add(easter(y) - relativedelta(days=2))
+            # easter monday
+            holidays.add(easter(y) + relativedelta(days=1))
+            # anzac day
+            holidays.add(datetime.datetime(y, 4, 25));
+            # queen 's birthday
+            holidays.add(day_of_week_in_month(y, 6, 0, 2))
+            # bank holiday
+            holidays.add(day_of_week_in_month(y, 8, 0, 1))
+            # labour day
+            holidays.add(day_of_week_in_month(y, 10, 0, 1))
+            # christmas
+            holidays.add(christmas_bumped_sat_sun(y))
+            # boxing
+            holidays.add(boxingday_bumped_sat_sun(y))
         holidays = rem_sat_sun(holidays)
         return holidays
 
