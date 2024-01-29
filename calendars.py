@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Set, List
 import datetime
 import calendar
 import enum
@@ -459,8 +459,26 @@ class HolidayCalendar(object):
         nxt_or_same = self.next_or_same(dt)
         return self.previous(dt) if nxt_or_same.month != dt.month else nxt_or_same
 
+    def shift(self, dt: datetime, amount: int) -> datetime:
+        adjusted = dt
+        if amount > 0:
+            for _ in range(adjusted):
+                adjusted = self.next(adjusted)
+        elif amount < 0:
+            for _ in range(adjusted):
+                adjusted = self.previous(adjusted)
+        return adjusted
+
 
 class CustomeHolidayCalendar(HolidayCalendar):
     def __init__(self, name: str, holidays: Set):
         self._type = name
         self._holidays = holidays
+
+
+class CombinedHolidayCalendar(HolidayCalendar):
+    def __init__(self, calendar_names=List[HolidayCalendarType]):
+        self._type = "_".join([x.name for x in calendar_names])
+        self._holidays = set()
+        for cn in calendar_names:
+            self._holidays |= HolidayCalendar(cn)
