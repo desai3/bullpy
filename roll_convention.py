@@ -4,7 +4,7 @@ import calendar
 
 from dateutil.relativedelta import relativedelta
 
-from .calendars import day_of_week_in_month, CombinedHolidayCalendar,HolidayCalendarType, HolidayCalendar
+from calendars import day_of_week_in_month, CombinedHolidayCalendar,HolidayCalendarType, HolidayCalendar
 
 
 class RollConventionType(enum.Enum):
@@ -18,13 +18,28 @@ class RollConventionType(enum.Enum):
     TBILL = enum.auto()
 
 
-class RolleConvention(object):
+class RollConvention(object):
     def __init__(self, name: RollConventionType):
-        self.name = RollConventionType.name
-        getattr(self, f'setup_{self.name}')()
+        self.name = name.name
+        getattr(self, f'setup_{self.name.lower()}')()
+
+    def matches(self, dt: datetime) -> bool:
+        return self.adjust(dt) == dt
 
     def adjust(self, dt: datetime) -> datetime:
-        return getattr(self, 'adjust_{self.name}')(dt)
+        return getattr(self, f'adjust_{self.name.lower()}')(dt)
+
+    def next(self, dt: datetime, delta: relativedelta) -> datetime:
+        calculated = self.adjust(dt + delta)
+        if calculated <= dt:
+            calculated = self.adjust(dt + relativedelta(months=1))
+        return calculated
+
+    def previous(self, dt: datetime, delta: relativedelta) -> datetime:
+        calculated = self.adjust(dt - delta)
+        if calculated >= dt:
+            calculated = self.adjust(dt - relativedelta(months=1))
+        return calculated
 
     def setup_none(self):
         pass
@@ -32,7 +47,7 @@ class RolleConvention(object):
     def adjust_none(self, dt: datetime) -> datetime:
         return dt
 
-    def setup_none(self):
+    def setup_eom(self):
         pass
 
     def adjust_eom(self, dt: datetime) -> datetime:
@@ -58,10 +73,10 @@ class RolleConvention(object):
     def adjust_immaud(self, dt: datetime) -> datetime:
         return self.ausy.previous(day_of_week_in_month(dt.year, dt.month, 4, 2))
 
-    def setup_immazd(self):
+    def setup_immnzd(self):
         pass
 
-    def adjust_immmnzd(self, dt: datetime) -> datetime:
+    def adjust_immnzd(self, dt: datetime) -> datetime:
         cur = datetime.datetime(dt.year, dt.month, 9)
         while cur.weekday() != 2:
             cur += relativedelta(days=1)

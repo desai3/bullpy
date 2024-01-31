@@ -149,6 +149,7 @@ class HolidayCalendarType(enum.Enum):
     GBLO = enum.auto()
     EUTA = enum.auto()
     CATO = enum.auto()
+    CAMO = enum.auto()
     AUSY = enum.auto()
 
 
@@ -347,7 +348,7 @@ class HolidayCalendar(object):
         return holidays
 
     @staticmethod
-    def get_cato():
+    def gen_cato():
         holidays = set()
         for y in range(1950, 2100):
             # New Year (Public)
@@ -379,7 +380,7 @@ class HolidayCalendar(object):
         return holidays
 
     @staticmethod
-    def get_camo():
+    def gen_camo():
         holidays = set()
         for y in range(1950, 2100):
             # new year
@@ -462,10 +463,10 @@ class HolidayCalendar(object):
     def shift(self, dt: datetime, amount: int) -> datetime:
         adjusted = dt
         if amount > 0:
-            for _ in range(adjusted):
+            for _ in range(amount):
                 adjusted = self.next(adjusted)
         elif amount < 0:
-            for _ in range(adjusted):
+            for _ in range(-amount):
                 adjusted = self.previous(adjusted)
         return adjusted
 
@@ -481,4 +482,4 @@ class CombinedHolidayCalendar(HolidayCalendar):
         self._type = "_".join([x.name for x in calendar_names])
         self._holidays = set()
         for cn in calendar_names:
-            self._holidays |= HolidayCalendar(cn)
+            self._holidays |= HolidayCalendar(cn)._holidays

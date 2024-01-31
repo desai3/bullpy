@@ -148,7 +148,7 @@ class CalData(object):
         return hl
 
 
-def test_cal(ct):
+def _test_cal(ct):
     data = CalData(ct).data()
     cal = HolidayCalendar(ct)
 
@@ -167,10 +167,11 @@ def test_cal(ct):
 
 
 def test_default_calendars():
-    cal_types = [HolidayCalendarType.USNY, HolidayCalendarType.USGS, HolidayCalendarType.NYFD, HolidayCalendarType.NYSE,
-                 HolidayCalendarType.GBLO, HolidayCalendarType.EUTA, HolidayCalendarType.AUSY]
+    cal_types = [HolidayCalendarType.USNY, HolidayCalendarType.USGS, HolidayCalendarType.NYFD,
+                 HolidayCalendarType.NYSE, HolidayCalendarType.GBLO, HolidayCalendarType.EUTA,
+                 HolidayCalendarType.AUSY, HolidayCalendarType.CAMO, HolidayCalendarType.CATO]
     for ct in cal_types:
-        test_cal(ct)
+        _test_cal(ct)
 
 
 def test_next():
