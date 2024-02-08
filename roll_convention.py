@@ -66,7 +66,7 @@ class RollConvention(object):
             getattr(self, f'setup_{self.name.name.lower()}')()
 
     def matches(self, dt: datetime) -> bool:
-        if self.name.name.startswith('DAY_'):
+        if self.name.name.startswith('DAY_') and self.name != RollConventionType.DAY_31:
             day = int(self.name.name.split('_')[-1])
             return dt.day == day or \
                 (dt.month == 2 and day >= calendar.monthrange(dt.year, dt.month)[1] and
