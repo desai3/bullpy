@@ -359,5 +359,71 @@ def test_day_of_month_previous_one_day():
             assert rc.previous(datetime(2014, 7, start), relativedelta(days=1)) == expected
 
 
+def test_day_of_week_adjust():
+    dt = datetime(2014, 8, 14)
+
+    assert RollConvention(RollConventionType.WEEKDAY_MON).adjust(dt) == datetime(2014, 8, 18)
+    assert RollConvention(RollConventionType.WEEKDAY_TUE).adjust(dt) == datetime(2014, 8, 19)
+    assert RollConvention(RollConventionType.WEEKDAY_WED).adjust(dt) == datetime(2014, 8, 20)
+    assert RollConvention(RollConventionType.WEEKDAY_THU).adjust(dt) == datetime(2014, 8, 14)
+    assert RollConvention(RollConventionType.WEEKDAY_FRI).adjust(dt) == datetime(2014, 8, 15)
+    assert RollConvention(RollConventionType.WEEKDAY_SAT).adjust(dt) == datetime(2014, 8, 16)
+    assert RollConvention(RollConventionType.WEEKDAY_SUN).adjust(dt) == datetime(2014, 8, 17)
+
+
+def test_day_of_week_matches():
+    assert not RollConvention(RollConventionType.WEEKDAY_TUE).matches(datetime(2014, 9, 1))
+    assert RollConvention(RollConventionType.WEEKDAY_TUE).matches(datetime(2014, 9, 2))
+    assert not RollConvention(RollConventionType.WEEKDAY_TUE).matches(datetime(2014, 9, 3))
+
+
+def test_day_of_week_next_oneweek():
+    dt = datetime(2014, 8, 14)
+
+    assert RollConvention(RollConventionType.WEEKDAY_MON).next(dt, relativedelta(weeks=1)) == datetime(2014, 8, 25)
+    assert RollConvention(RollConventionType.WEEKDAY_TUE).next(dt, relativedelta(weeks=1)) == datetime(2014, 8, 26)
+    assert RollConvention(RollConventionType.WEEKDAY_WED).next(dt, relativedelta(weeks=1)) == datetime(2014, 8, 27)
+    assert RollConvention(RollConventionType.WEEKDAY_THU).next(dt, relativedelta(weeks=1)) == datetime(2014, 8, 21)
+    assert RollConvention(RollConventionType.WEEKDAY_FRI).next(dt, relativedelta(weeks=1)) == datetime(2014, 8, 22)
+    assert RollConvention(RollConventionType.WEEKDAY_SAT).next(dt, relativedelta(weeks=1)) == datetime(2014, 8, 23)
+    assert RollConvention(RollConventionType.WEEKDAY_SUN).next(dt, relativedelta(weeks=1)) == datetime(2014, 8, 24)
+
+
+def test_day_of_week_next_oneday():
+    dt = datetime(2014, 8, 14)
+
+    assert RollConvention(RollConventionType.WEEKDAY_MON).next(dt, relativedelta(days=1)) == datetime(2014, 8, 18)
+    assert RollConvention(RollConventionType.WEEKDAY_TUE).next(dt, relativedelta(days=1)) == datetime(2014, 8, 19)
+    assert RollConvention(RollConventionType.WEEKDAY_WED).next(dt, relativedelta(days=1)) == datetime(2014, 8, 20)
+    assert RollConvention(RollConventionType.WEEKDAY_THU).next(dt, relativedelta(days=1)) == datetime(2014, 8, 21)
+    assert RollConvention(RollConventionType.WEEKDAY_FRI).next(dt, relativedelta(days=1)) == datetime(2014, 8, 15)
+    assert RollConvention(RollConventionType.WEEKDAY_SAT).next(dt, relativedelta(days=1)) == datetime(2014, 8, 16)
+    assert RollConvention(RollConventionType.WEEKDAY_SUN).next(dt, relativedelta(days=1)) == datetime(2014, 8, 17)
+
+
+def test_day_of_week_previous_oneweek():
+    dt = datetime(2014, 8, 14)
+
+    assert RollConvention(RollConventionType.WEEKDAY_MON).previous(dt, relativedelta(weeks=1)) == datetime(2014, 8, 4)
+    assert RollConvention(RollConventionType.WEEKDAY_TUE).previous(dt, relativedelta(weeks=1)) == datetime(2014, 8, 5)
+    assert RollConvention(RollConventionType.WEEKDAY_WED).previous(dt, relativedelta(weeks=1)) == datetime(2014, 8, 6)
+    assert RollConvention(RollConventionType.WEEKDAY_THU).previous(dt, relativedelta(weeks=1)) == datetime(2014, 8, 7)
+    assert RollConvention(RollConventionType.WEEKDAY_FRI).previous(dt, relativedelta(weeks=1)) == datetime(2014, 8, 1)
+    assert RollConvention(RollConventionType.WEEKDAY_SAT).previous(dt, relativedelta(weeks=1)) == datetime(2014, 8, 2)
+    assert RollConvention(RollConventionType.WEEKDAY_SUN).previous(dt, relativedelta(weeks=1)) == datetime(2014, 8, 3)
+
+
+def test_day_of_week_previous_oneday():
+    dt = datetime(2014, 8, 14)
+
+    assert RollConvention(RollConventionType.WEEKDAY_MON).previous(dt, relativedelta(days=1)) == datetime(2014, 8, 11)
+    assert RollConvention(RollConventionType.WEEKDAY_TUE).previous(dt, relativedelta(days=1)) == datetime(2014, 8, 12)
+    assert RollConvention(RollConventionType.WEEKDAY_WED).previous(dt, relativedelta(days=1)) == datetime(2014, 8, 13)
+    assert RollConvention(RollConventionType.WEEKDAY_THU).previous(dt, relativedelta(days=1)) == datetime(2014, 8, 7)
+    assert RollConvention(RollConventionType.WEEKDAY_FRI).previous(dt, relativedelta(days=1)) == datetime(2014, 8, 8)
+    assert RollConvention(RollConventionType.WEEKDAY_SAT).previous(dt, relativedelta(days=1)) == datetime(2014, 8, 9)
+    assert RollConvention(RollConventionType.WEEKDAY_SUN).previous(dt, relativedelta(days=1)) == datetime(2014, 8, 10)
+
+
 if __name__ == '__main__':
-    test_standard_matches()
+    test_day_of_week_previous_oneweek()

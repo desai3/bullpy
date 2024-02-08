@@ -85,7 +85,7 @@ class RollConvention(object):
                 return datetime.datetime(dt.year, dt.month, calendar.monthrange(dt.year, dt.month)[1])
             return datetime.datetime(dt.year, dt.month, day)
         elif self.name.name.startswith('WEEKDAY_'):
-            day = int(self.name.name.split('_')[-1])
+            day = self.name.name.split('_')[-1]
             day = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}[day]
             cur = dt
             while cur.weekday() != day:
@@ -95,17 +95,32 @@ class RollConvention(object):
             return getattr(self, f'adjust_{self.name.name.lower()}')(dt)
 
     def next(self, dt: datetime, delta: relativedelta) -> datetime:
-        calculated = self.adjust(dt + delta)
-        if calculated <= dt:
-            calculated = self.adjust(dt + relativedelta(months=1))
-        return calculated
+        if self.name.name.startswith('WEEKDAY_'):
+            calculated = dt + delta
+            dct = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
+            day = dct[self.name.name.split('_')[-1]]
+            while calculated.weekday() != day:
+                calculated += relativedelta(days=1)
+            return calculated
+        else:
+            calculated = self.adjust(dt + delta)
+            if calculated <= dt:
+                calculated = self.adjust(dt + relativedelta(months=1))
+            return calculated
 
     def previous(self, dt: datetime, delta: relativedelta) -> datetime:
-        calculated = self.adjust(dt - delta)
-        if calculated >= dt:
-            calculated = self.adjust(dt - relativedelta(months=1))
-        return calculated
-
+        if self.name.name.startswith('WEEKDAY_'):
+            calculated = dt - delta
+            dct = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
+            day = dct[self.name.name.split('_')[-1]]
+            while calculated.weekday() != day:
+                calculated -= relativedelta(days=1)
+            return calculated
+        else:
+            calculated = self.adjust(dt - delta)
+            if calculated >= dt:
+                calculated = self.adjust(dt - relativedelta(months=1))
+            return calculated
 
     def adjust_none(self, dt: datetime) -> datetime:
         return dt
