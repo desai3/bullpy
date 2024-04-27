@@ -1,7 +1,7 @@
 import enum
 import datetime
 
-from calendars import HolidayCalendar, HolidayCalendarType
+from calendars import HolidayCalendar
 
 
 class BDayAdjType(enum.Enum):
