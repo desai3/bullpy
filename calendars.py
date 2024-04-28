@@ -3,7 +3,7 @@ import datetime
 import calendar
 import enum
 
-from dateutil.relativedelta import relativedelta
+from frequency import plus_days
 
 
 def easter(year: int) -> datetime:
@@ -31,23 +31,23 @@ def rem_sat_sun(holidays) -> Set:
 
 def bump_sun_to_mon(dt: datetime) -> datetime:
     if dt.weekday() == 6:
-        return dt + relativedelta(days=1)
+        return plus_days(dt, 1)
     return dt
 
 
 def bump_to_mon(dt: datetime) -> datetime:
     if dt.weekday() == 5:
-        return dt + relativedelta(days=2)
+        return plus_days(dt, 2)
     elif dt.weekday() == 6:
-        return dt + relativedelta(days=1)
+        return plus_days(dt, 1)
     return dt
 
 
 def bump_to_fri_or_mon(dt: datetime) -> datetime:
     if dt.weekday() == 6:
-        return dt + relativedelta(days=1)
+        return plus_days(dt, 1)
     elif dt.weekday() == 5:
-        return dt - relativedelta(days=1)
+        return plus_days(dt, -1)
     else:
         return dt
 
@@ -68,24 +68,23 @@ def boxingday_bumped_sat_sun(year: int):
 
 def first_in_month(year: int, month: int, weekday: int) -> datetime:
     dt = datetime.datetime(year, month, 1)
-    offset = relativedelta(days=1)
     for i in range(7):
         if dt.weekday() == weekday:
             return dt
-        dt += offset
+        dt = plus_days(dt, 1)
 
 
 def last_in_month(year: int, month: int, weekday: int) -> datetime:
     dt = datetime.datetime(year, month, calendar.monthrange(year, month)[1])
-    offset = relativedelta(days=1)
     for i in range(7):
         if dt.weekday() == weekday:
             return dt
-        dt -= offset
+        dt = plus_days(dt, -1)
 
 
 def day_of_week_in_month(year: int, month: int, weekday: int, week: int) -> datetime:
-    dt1 = first_in_month(year, month, weekday) + relativedelta(weeks=week - 1)
+    # dt1 = first_in_month(year, month, weekday) + relativedelta(weeks=week - 1)
+    dt1 = plus_days(first_in_month(year, month, weekday), 7 * (week - 1))
     return dt1
 
 
@@ -168,7 +167,7 @@ class HolidayCalendar(object):
         holidays = set()
         for y in range(1950, 2100):
             us_common(holidays, y, True, True, 1986)
-            holidays.add(easter(y) - relativedelta(days=2))
+            holidays.add(plus_days(easter(y), 2))
 
         # Hurricane sandy
         holidays.add(datetime.datetime(2012, 10, 30))
@@ -191,7 +190,7 @@ class HolidayCalendar(object):
         holidays = set()
         for y in range(1950, 2100):
             us_common(holidays, y, True, False, 1998)
-            holidays.add(easter(y) - relativedelta(days=2))
+            holidays.add(plus_days(easter(y), -2))
 
         # Lincoln day 1896 - 1953
         # Columbus day 1909 - 1953
@@ -203,7 +202,7 @@ class HolidayCalendar(object):
 
         # Election day, Tue after first Monday of November
         for y in range(1950, 1968 + 1):
-            holidays.add(first_in_month(y, 11, 0) + relativedelta(days=1))
+            holidays.add(plus_days(first_in_month(y, 11, 0), 1))
 
         holidays.add(datetime.datetime(1972, 11, 7))
         holidays.add(datetime.datetime(1976, 11, 2))
@@ -276,8 +275,8 @@ class HolidayCalendar(object):
                 holidays.add(bump_to_mon(datetime.datetime(y, 1, 1)))
 
             # Easter
-            holidays.add(easter(y) - relativedelta(days=2))
-            holidays.add(easter(y) + relativedelta(days=2))
+            holidays.add(plus_days(easter(y), -2))
+            holidays.add(plus_days(easter(y), 2))
 
             # Early may
             if y == 1995 or y == 2020:
@@ -301,7 +300,7 @@ class HolidayCalendar(object):
             elif y == 1967 or y == 1970:
                 holidays.add(last_in_month(y, 5, 0))
             elif y < 1971:
-                holidays.add(easter(y) + relativedelta(days=50))
+                holidays.add(plus_days(easter(y), 50))
             else:
                 holidays.add(last_in_month(y, 5, 0))
 
@@ -309,7 +308,7 @@ class HolidayCalendar(object):
             if y < 1965:
                 holidays.add(first_in_month(y, 8, 0))
             elif y < 1971:
-                holidays.add(last_in_month(y, 8, 5) + relativedelta(days=2))
+                holidays.add(plus_days(last_in_month(y, 8, 5), 2))
             else:
                 holidays.add(last_in_month(y, 8, 0))
 
@@ -334,8 +333,8 @@ class HolidayCalendar(object):
         for y in range(1997, 2100):
             if y >= 2000:
                 holidays.add(datetime.datetime(y, 1, 1))
-                holidays.add(easter(y) - relativedelta(days=2))
-                holidays.add(easter(y) + relativedelta(days=1))
+                holidays.add(plus_days(easter(y), -2))
+                holidays.add(plus_days(easter(y), 1))
                 holidays.add(datetime.datetime(y, 5, 1))
                 holidays.add(datetime.datetime(y, 12, 25))
                 holidays.add(datetime.datetime(y, 12, 26))
@@ -356,11 +355,11 @@ class HolidayCalendar(object):
             if y >= 2008:
                 holidays.add(day_of_week_in_month(y, 2, 0, 3))
             # good friday(public)
-            holidays.add(easter(y) - relativedelta(days=2))
+            holidays.add(plus_days(easter(y), -2))
             # victoria(public)
             cur = datetime.datetime(y, 5, 25)
             while cur.weekday() != 0:
-                cur -= relativedelta(days=1)
+                cur = plus_days(cur, 1)
             holidays.add(cur)
             # canada(public)
             holidays.add(bump_to_mon(datetime.datetime(y, 7, 1)))
@@ -386,11 +385,11 @@ class HolidayCalendar(object):
             # new year
             holidays.add(bump_to_mon(datetime.datetime(y, 1, 1)))
             # good friday(public)
-            holidays.add(easter(y) - relativedelta(days=2))
+            holidays.add(plus_days(easter(y), -2))
             # patriots
             cur = datetime.datetime(y, 5, 25)
             while cur.weekday() != 0:
-                cur -= relativedelta(days=1)
+                cur = plus_days(cur, -1)
             holidays.add(cur)
             # fete nationale quebec
             holidays.add(bump_to_mon(datetime.datetime(y, 6, 24)))
@@ -414,9 +413,9 @@ class HolidayCalendar(object):
             # australia day
             holidays.add(bump_to_mon(datetime.datetime(y, 1, 26)));
             # good friday
-            holidays.add(easter(y) - relativedelta(days=2))
+            holidays.add(plus_days(easter(y), -2))
             # easter monday
-            holidays.add(easter(y) + relativedelta(days=1))
+            holidays.add(plus_days(easter(y), 1))
             # anzac day
             holidays.add(datetime.datetime(y, 4, 25));
             # queen 's birthday
@@ -443,11 +442,11 @@ class HolidayCalendar(object):
         return not self.is_holiday(dt)
 
     def next(self, dt: datetime) -> datetime:
-        nxt = dt + relativedelta(days=1)
+        nxt = plus_days(dt, 1)
         return self.next(nxt) if self.is_holiday(nxt) else nxt
 
     def previous(self, dt: datetime) -> datetime:
-        prev = dt - relativedelta(days=1)
+        prev = plus_days(dt, -1)
         return self.previous(prev) if self.is_holiday(prev) else prev
 
     def previous_or_same(self, dt: datetime) -> datetime:
@@ -469,6 +468,9 @@ class HolidayCalendar(object):
             for _ in range(-amount):
                 adjusted = self.previous(adjusted)
         return adjusted
+
+
+
 
 
 class CustomeHolidayCalendar(HolidayCalendar):

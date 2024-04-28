@@ -1,3 +1,53 @@
+import calendar
+import datetime
+
+
+def plus_months(dt: datetime, months_to_add: int) -> datetime:
+    if not months_to_add:
+        return dt
+    months_count = 12 * dt.year + dt.month - 1
+    calc_month = months_count + months_to_add
+    year = calc_month // 12
+    month = calc_month % 12 + 1
+    day = dt.day
+
+    if month == 2:
+        day = min(day, 29 if calendar.isleap(year) else 28)
+    elif month in (4, 6, 9, 11):
+        day = min(day, 30)
+    return datetime.datetime(year, month, day)
+
+
+def plus_years(dt: datetime, years_to_add: int) -> datetime:
+    year = dt.year + years_to_add
+    month = dt.month
+    day = dt.day
+
+    if month == 2:
+        day = min(day, 29 if calendar.isleap(year) else 28)
+    elif month in (4, 6, 9, 11):
+        day = min(day, 30)
+    return datetime.datetime(year, month, day)
+
+
+def plus_days(dt: datetime, days_to_add: int) -> datetime:
+    if not days_to_add:
+        return dt
+
+    dom = dt.day + days_to_add
+    if 0 < dom <= 59:
+        month_len = calendar.monthrange(dt.year, dt.month)[1]
+        month = dt.month
+        year = dt.year
+        if dom <= month_len:
+            return datetime.datetime(year, month, dom)
+        elif month < 12:
+            return datetime.datetime(year, month + 1, dom - month_len)
+        else:
+            return datetime.datetime(year + 1, 1, dom - month_len)
+    mj_day = datetime.date.fromordinal(dt.toordinal() + days_to_add)
+    return datetime.datetime(mj_day.year, mj_day.month, mj_day.day)
+
 
 
 class Frequency(object):
@@ -97,3 +147,9 @@ class Frequency(object):
 
     def is_term(self):
         return self._years == 0 and self._months == 0 and self._days == 0
+
+    def add_to_date(self, dt: datetime) -> datetime:
+        return plus_days(plus_months(dt, self.to_total_months()), self.get_days())
+
+    def sub_from_date(self, dt: datetime) -> datetime:
+        return plus_days(plus_months(dt, -self.to_total_months()), -self.get_days())

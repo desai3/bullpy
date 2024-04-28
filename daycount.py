@@ -3,6 +3,8 @@ from dateutil.relativedelta import relativedelta
 import calendar
 import enum
 
+from frequency import plus_years
+
 
 def _next_leap_day(dt: datetime):
     if dt.month == 2 and dt.day == 29:

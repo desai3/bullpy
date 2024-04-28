@@ -2,9 +2,10 @@ import enum
 import datetime
 import calendar
 
-from dateutil.relativedelta import relativedelta
+# from dateutil.relativedelta import relativedelta
 
 from calendars import day_of_week_in_month, CombinedHolidayCalendar,HolidayCalendarType, HolidayCalendar
+from frequency import plus_days, plus_months, Frequency
 
 
 class RollConventionType(enum.Enum):
@@ -89,37 +90,43 @@ class RollConvention(object):
             day = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}[day]
             cur = dt
             while cur.weekday() != day:
-                cur += relativedelta(days=1)
+                # cur += relativedelta(days=1)
+                cur = plus_days(cur, 1)
             return cur
         else:
             return getattr(self, f'adjust_{self.name.name.lower()}')(dt)
 
-    def next(self, dt: datetime, delta: relativedelta) -> datetime:
+    def next(self, dt: datetime, delta: Frequency) -> datetime:
         if self.name.name.startswith('WEEKDAY_'):
-            calculated = dt + delta
+            # calculated = dt + delta
+            calculated = delta.add_to_date(dt)
             dct = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
             day = dct[self.name.name.split('_')[-1]]
             while calculated.weekday() != day:
-                calculated += relativedelta(days=1)
+                # calculated += relativedelta(days=1)
+                calculated = plus_days(calculated, 1)
             return calculated
         else:
-            calculated = self.adjust(dt + delta)
+            calculated = self.adjust(delta.add_to_date(dt))
             if calculated <= dt:
-                calculated = self.adjust(dt + relativedelta(months=1))
+                calculated = self.adjust(plus_months(dt, 1))
             return calculated
 
-    def previous(self, dt: datetime, delta: relativedelta) -> datetime:
+    def previous(self, dt: datetime, delta: Frequency) -> datetime:
         if self.name.name.startswith('WEEKDAY_'):
-            calculated = dt - delta
+            # calculated = dt - delta
+            calculated = delta.sub_from_date(dt)
             dct = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
             day = dct[self.name.name.split('_')[-1]]
             while calculated.weekday() != day:
-                calculated -= relativedelta(days=1)
+                # calculated -= relativedelta(days=1)
+                calculated = plus_days(calculated, -1)
             return calculated
         else:
-            calculated = self.adjust(dt - delta)
+            calculated = self.adjust(delta.sub_from_date(dt))
             if calculated >= dt:
-                calculated = self.adjust(dt - relativedelta(months=1))
+                # calculated = self.adjust(dt - relativedelta(months=1))
+                calculated = self.adjust(plus_months(dt, -1))
             return calculated
 
     def adjust_none(self, dt: datetime) -> datetime:
@@ -148,7 +155,8 @@ class RollConvention(object):
     def adjust_immnzd(self, dt: datetime) -> datetime:
         cur = datetime.datetime(dt.year, dt.month, 9)
         while cur.weekday() != 2:
-            cur += relativedelta(days=1)
+            # cur += relativedelta(days=1)
+            cur = plus_days(cur, 1)
         return cur
 
     def adjust_sfe(self, dt: datetime) -> datetime:
@@ -160,5 +168,6 @@ class RollConvention(object):
     def adjust_tbill(self, dt: datetime) -> datetime:
         cur = dt
         while cur.weekday() != 0:
-            cur += relativedelta(days=1)
+            # cur += relativedelta(days=1)
+            cur = plus_days(cur, 1)
         return self.usny.next_or_same(cur)
