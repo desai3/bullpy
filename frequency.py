@@ -1,4 +1,4 @@
-from IPython.core.debugger import set_trace
+
 
 class Frequency(object):
     max_years = 1_000
@@ -21,18 +21,18 @@ class Frequency(object):
             raise ValueError("Days must be non-negative")
 
         tot_months = self.to_total_months()
-        if tot_months > Frequency.max_months:
+        if tot_months > Frequency.max_months or self.is_term():
             self._events_per_year = 0
-            self._events_per_year_estimate = 0
+            self._events_per_year_estimate = 0.0
         else:
             months = tot_months
             days = self._days
             if months > 0 and days == 0:
                 self._events_per_year = 12 // months if 12 % months == 0 else -1
-                self._events_per_year_estimate = 12 // months
+                self._events_per_year_estimate = 12 / months
             elif days > 0 and months == 0:
                 self._events_per_year = 364 // days if 364 % days == 0 else -1
-                self._events_per_year_estimate = 364 // days
+                self._events_per_year_estimate = 364 / days
             else:
                 self._events_per_year = -1
                 estimated_secs = months * (31556952 // 12) + days * 86400
@@ -44,18 +44,23 @@ class Frequency(object):
             self.get_days() == other.get_days()
 
     def is_month_based(self) -> bool:
-        return self.to_total_months() > 0 and self._get_days() == 0 and not self.is_term()
+        return self.to_total_months() > 0 and self.get_days() == 0 and not self.is_term()
 
     def exact_divide(self, other):
+        if self.is_term():
+            raise ValueError("Frequency is of type TERM")
+        if other.is_term():
+            raise ValueError("Other frequency is of type TERM")
+
         if self.is_month_based() and other.is_month_based():
             payment_months = self.to_total_months()
-            accrual_months = self.to_total_months()
+            accrual_months = other.to_total_months()
 
             if payment_months % accrual_months == 0:
                 return payment_months // accrual_months
         elif self.to_total_months() == 0 and other.to_total_months() == 0:
             payment_days = self.get_days()
-            accrual_days = self.get_days()
+            accrual_days = other.get_days()
             if payment_days % accrual_days == 0:
                 return payment_days // accrual_days
         raise ValueError(f"Frequency {self} is not a multiple of {other}")
@@ -78,12 +83,13 @@ class Frequency(object):
 
     def get_years(self) -> int:
         return self._years
+
     def is_annual(self):
         return self.to_total_months() == 12 and self.get_days() == 0
 
     def events_per_year(self):
         if self._events_per_year == -1:
-            ValueError("Unable to calculate events per year")
+            raise ValueError("Unable to calculate events per year")
         return self._events_per_year
 
     def events_per_year_estimate(self):
