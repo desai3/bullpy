@@ -1,14 +1,13 @@
 from typing import List
 from datetime import datetime
 
-from dateutil.relativedelta import relativedelta
-
 from schedule_period import SchedulePeriod
 from roll_convention import RollConvention, RollConventionType
+from frequency import Frequency
 
 
 class Schedule(object):
-    def __init__(self, periods: List[SchedulePeriod], freq: relativedelta, roll_conv: RollConvention):
+    def __init__(self, periods: List[SchedulePeriod], freq: Frequency, roll_conv: RollConvention):
         self.periods = periods
         self.freq = freq
         self.roll_conv = roll_conv

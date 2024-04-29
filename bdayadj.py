@@ -18,6 +18,9 @@ class BDayAdj(object):
     def __init__(self, adj_type: BDayAdjType):
         self.adj_type = adj_type
 
+    def __eq__(self, other):
+        return self.adj_type == other.adj_type
+
     def adjust(self, dt: datetime, calendar: HolidayCalendar) -> datetime:
         return getattr(self, f'adjust_{self.adj_type.name.lower()}')(dt, calendar)
 

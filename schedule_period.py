@@ -4,8 +4,8 @@ from roll_convention import RollConvention
 from stub_convention import StubConventionType
 from bdayadj import BDayAdj
 from periodic_schedule import PeriodicSchedule
+from frequency import Frequency
 
-from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
 
@@ -28,7 +28,7 @@ class SchedulePeriod(object):
     def year_fraction(self, dc: DayCount, sched: Schedule):
         return dc.year_fraction(self.start_dt, self.end_dt, sched)
 
-    def is_regular(self, freq: relativedelta | None, roll_conv: RollConvention) -> bool:
+    def is_regular(self, freq: Frequency, roll_conv: RollConvention) -> bool:
         return roll_conv.next(self.unadjusted_start_dt, freq) == self.unadjusted_end_dt and \
             roll_conv.previous(self.unadjusted_end_dt == self.unadjusted_start_dt)
 
@@ -36,7 +36,7 @@ class SchedulePeriod(object):
         return not dt < self.start_dt and dt < self.end_dt
 
     def sub_schedule(self,
-                     freq: relativedelta | None,
+                     freq: Frequency,
                      roll_conv: RollConvention,
                      stub_conv: StubConventionType,
                      bday_adj: BDayAdj,
