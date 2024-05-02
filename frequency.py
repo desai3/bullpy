@@ -156,3 +156,6 @@ class Frequency(object):
 
     def is_week_based(self):
         return self.to_total_months() == 0 and self.get_days() % 7 == 0 and not self.is_term()
+
+    def __repr__(self):
+        return f"Frequency(years={self._years}, months={self._months}, days={self._days})"

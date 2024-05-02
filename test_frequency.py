@@ -74,11 +74,11 @@ def test_is_week_based():
         [Frequency(days=6), False],
         [Frequency(days=7), True],
         [Frequency(days=21), True],
-        [Frequency(months=1), True],
-        [Frequency(months=3), True],
-        [Frequency(months=12), True],
-        [Frequency(years=1), True],
-        [Frequency(years=3), True],
+        [Frequency(months=1), False],
+        [Frequency(months=3), False],
+        [Frequency(months=12), False],
+        [Frequency(years=1), False],
+        [Frequency(years=3), False],
         [Frequency(years=1, months=2, days=3), False],
         [Frequency(), False],
     ]
@@ -205,13 +205,13 @@ def test_exact_divide():
 
 def test_exact_divide_bad():
     data = [
-        # [Frequency(days=5), Frequency(days=2)],
-        # [Frequency(months=5), Frequency(months=2)],
-        # [Frequency(months=1), Frequency(days=7)],
-        # [Frequency(days=7), Frequency(months=1)],
+        [Frequency(days=5), Frequency(days=2)],
+        [Frequency(months=5), Frequency(months=2)],
+        [Frequency(months=1), Frequency(days=7)],
+        [Frequency(days=7), Frequency(months=1)],
         [Frequency(), Frequency(days=7)],
         [Frequency(months=12), Frequency()],
-        # [Frequency(years=1), Frequency(days=7)]
+        [Frequency(years=1), Frequency(days=7)]
     ]
     for f1, f2 in data:
         with pytest.raises(ValueError):
@@ -219,4 +219,4 @@ def test_exact_divide_bad():
 
 
 if __name__ == '__main__':
-    test_exact_divide_bad()
+    test_is_week_based()
