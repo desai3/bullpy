@@ -5,6 +5,7 @@ import datetime
 from frequency import plus_days, Frequency
 from roll_convention import RollConvention, RollConventionType
 
+from IPython.core.debugger import set_trace
 
 class StubConventionType(enum.Enum):
     NONE = enum.auto()
@@ -149,6 +150,9 @@ class StubConvention(object):
             if eom and dt1.day == calendar.monthrange(dt1.year, dt1.month)[1]:
                 return RollConvention(RollConventionType.EOM)
             return RollConvention(getattr(RollConventionType, f'DAY_{dt1.day}'))
+        elif freq.is_week_based():
+            day = {0: 'MON', 1: 'TUE', 2: 'WED', 3: 'THU', 4: 'FRI', 5: 'SAT', 6: 'SUN'}[dt1.weekday()]
+            return RollConvention(getattr(RollConventionType, f'WEEKDAY_{day}'))
         else:
             return RollConvention(RollConventionType.NONE)
 
@@ -157,8 +161,10 @@ class StubConvention(object):
         assert end is not None, 'End date cannot be None'
         assert freq is not None, 'Frequency cannot be None'
         if self._type == RollConventionType.NONE.name and freq.is_month_based():
-            if start.day != end.day and (start.day == calendar.monthrange(start.year, start.month)[1] or
-                                         end.day == calendar.monthrange(end.year, end.month)[1]):
+            if (start.day != end.day and
+                    (start.year * 12 + start.month - 1) != (end.year * 12 + end.month - 1) and
+                    (start.day == calendar.monthrange(start.year, start.month)[1] or
+                                         end.day == calendar.monthrange(end.year, end.month)[1])):
                 if eom:
                     return RollConvention(RollConventionType.EOM)
                 else:

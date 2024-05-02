@@ -21,10 +21,10 @@ def test_null():
 
 
 def test_to_roll_convention():
-    data = [# [StubConventionType.NONE, datetime(2014, 1, 14), datetime(2014, 8, 16), Frequency(months=1), False,
-            #  RollConventionType.DAY_14],
-            # [StubConventionType.NONE, datetime(2014, 1, 14), datetime(2014, 8, 16), Frequency(months=1), True,
-            #  RollConventionType.DAY_14],
+    data = [[StubConventionType.NONE, datetime(2014, 1, 14), datetime(2014, 8, 16), Frequency(months=1), False,
+             RollConventionType.DAY_14],
+            [StubConventionType.NONE, datetime(2014, 1, 14), datetime(2014, 8, 16), Frequency(months=1), True,
+             RollConventionType.DAY_14],
 
             [StubConventionType.NONE, datetime(2014, 1, 14), datetime(2014, 8, 16), Frequency(days=2 * 7), False,
              RollConventionType.WEEKDAY_TUE],
@@ -164,11 +164,11 @@ def test_to_roll_convention():
             [StubConventionType.BOTH, datetime(2014, 1, 14), datetime(2014, 8, 16), Frequency(months=1), False,
              RollConventionType.DAY_14],
             [StubConventionType.BOTH, datetime(2014, 1, 14), datetime(2014, 8, 16), Frequency(months=1), True,
-             RollConventionType.DAY_14]]
+             RollConventionType.DAY_14]
+            ]
 
     count = 0
     for sct, start, end, freq, eom, rct in data:
-        print(count)
         count += 1
         res = StubConvention(sct).to_roll_convention(start, end, freq, eom)
         ans = RollConvention(rct)

@@ -153,3 +153,6 @@ class Frequency(object):
 
     def sub_from_date(self, dt: datetime) -> datetime:
         return plus_days(plus_months(dt, -self.to_total_months()), -self.get_days())
+
+    def is_week_based(self):
+        return self.to_total_months() == 0 and self.get_days() % 7 == 0 and not self.is_term()

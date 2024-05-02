@@ -53,6 +53,7 @@ def test_is_month_based():
         [Frequency(days=2), False],
         [Frequency(days=6), False],
         [Frequency(days=7), False],
+        [Frequency(days=21), False],
         [Frequency(months=1), True],
         [Frequency(months=3), True],
         [Frequency(months=12), True],
@@ -66,12 +67,33 @@ def test_is_month_based():
         assert f.is_month_based() == b
 
 
+def test_is_week_based():
+    data = [
+        [Frequency(days=1), False],
+        [Frequency(days=2), False],
+        [Frequency(days=6), False],
+        [Frequency(days=7), True],
+        [Frequency(days=21), True],
+        [Frequency(months=1), True],
+        [Frequency(months=3), True],
+        [Frequency(months=12), True],
+        [Frequency(years=1), True],
+        [Frequency(years=3), True],
+        [Frequency(years=1, months=2, days=3), False],
+        [Frequency(), False],
+    ]
+
+    for f, b in data:
+        assert f.is_week_based() == b
+
+
 def test_is_annual():
     data = [
         [Frequency(days=1), False],
         [Frequency(days=2), False],
         [Frequency(days=6), False],
         [Frequency(days=7), False],
+        [Frequency(days=21), False],
         [Frequency(months=1), False],
         [Frequency(months=3), False],
         [Frequency(months=12), True],
