@@ -7,6 +7,7 @@ from roll_convention import RollConvention, RollConventionType
 
 from IPython.core.debugger import set_trace
 
+
 class StubConventionType(enum.Enum):
     NONE = enum.auto()
 
@@ -24,8 +25,8 @@ class StubConventionType(enum.Enum):
 class StubConvention(object):
     def __init__(self, stub_conv_type: StubConventionType):
         self._type = stub_conv_type.name
-        self._to_implicit = getattr(self, f"_{self._type.lower()}_to_implicit")
-        self._is_stub_long = getattr(self, f"_{self._type.lower()}_is_stub_long")
+        self.to_implicit = getattr(self, f"_{self._type.lower()}_to_implicit")
+        self.is_stub_long = getattr(self, f"_{self._type.lower()}_is_stub_long")
 
     def _none_to_implicit(self, explicit_initial_stub: bool, explicit_final_stub: bool):
         if explicit_initial_stub or explicit_final_stub:
@@ -72,7 +73,7 @@ class StubConvention(object):
                 return StubConvention(StubConventionType.SMART_INITIAL)
 
     def _smart_initial_is_stub_long(self, dt1: datetime, dt2: datetime) -> bool:
-        return False
+        return plus_days(dt1, 7) > dt2
 
     def _short_final_to_implicit(self, explicity_initial_stub: bool, explicit_final_stub: bool):
         if explicity_initial_stub:
@@ -131,7 +132,7 @@ class StubConvention(object):
     def is_final(self):
         return self._type == StubConventionType.SHORT_FINAL.name or \
             self._type == StubConventionType.LONG_FINAL.name or \
-            self._type == StubConventionType.SHORT_FINAL.name
+            self._type == StubConventionType.SMART_FINAL.name
 
     def is_calculate_forwards(self):
         return self._type == StubConventionType.SHORT_FINAL.name or \
@@ -164,7 +165,7 @@ class StubConvention(object):
             if (start.day != end.day and
                     (start.year * 12 + start.month - 1) != (end.year * 12 + end.month - 1) and
                     (start.day == calendar.monthrange(start.year, start.month)[1] or
-                                         end.day == calendar.monthrange(end.year, end.month)[1])):
+                     end.day == calendar.monthrange(end.year, end.month)[1])):
                 if eom:
                     return RollConvention(RollConventionType.EOM)
                 else:
@@ -173,3 +174,6 @@ class StubConvention(object):
             return self.implied_roll_convention(end, start, freq, eom)
         else:
             return self.implied_roll_convention(start, end, freq, eom)
+
+    def __eq__(self, o):
+        return isinstance(o, type(self)) and o._type == self._type
