@@ -31,7 +31,7 @@ class StubConvention(object):
             raise ValueError("Dates specify an explicit stub, but stub convention is NONE")
         return StubConvention(StubConventionType.NONE)
 
-    def _none_initial_is_stub_long(self, dt1: datetime, dt2: datetime) -> bool:
+    def _none_is_stub_long(self, dt1: datetime, dt2: datetime) -> bool:
         return False
 
     def _short_initial_to_implicit(self, explicit_initial_stub: bool, explicit_final_stub: bool):
@@ -110,12 +110,12 @@ class StubConvention(object):
     def _smart_final_is_stub_long(self, dt1: datetime, dt2: datetime) -> bool:
         return plus_days(dt1, 7) > dt2
 
-    def _both_final_to_implicit(self, explicit_initial_stub: bool, explicit_final_stub: bool):
+    def _both_to_implicit(self, explicit_initial_stub: bool, explicit_final_stub: bool):
         if not (explicit_initial_stub and explicit_final_stub):
             raise ValueError("Stub convention is BOTH but explicit dates not specified")
         return StubConvention(StubConventionType.NONE)
 
-    def _both_final_is_stub_long(self, dt1: datetime, dt2: datetime) -> bool:
+    def _both_is_stub_long(self, dt1: datetime, dt2: datetime) -> bool:
         return False
 
     def is_smart(self):
@@ -153,6 +153,9 @@ class StubConvention(object):
             return RollConvention(RollConventionType.NONE)
 
     def to_roll_convention(self, start: datetime, end: datetime, freq: Frequency, eom: bool) -> RollConvention:
+        assert start is not None, 'Start date cannot be None'
+        assert end is not None, 'End date cannot be None'
+        assert freq is not None, 'Frequency cannot be None'
         if self._type == RollConventionType.NONE.name and freq.is_month_based():
             if start.day != end.day and (start.day == calendar.monthrange(start.year, start.month)[1] or
                                          end.day == calendar.monthrange(end.year, end.month)[1]):

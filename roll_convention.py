@@ -66,6 +66,9 @@ class RollConvention(object):
         if self.name in (RollConventionType.IMMCAD, RollConventionType.IMMAUD, RollConventionType.TBILL):
             getattr(self, f'setup_{self.name.name.lower()}')()
 
+    def __eq__(self, other):
+        return self.name == other.name
+
     def matches(self, dt: datetime) -> bool:
         if self.name.name.startswith('DAY_') and self.name != RollConventionType.DAY_31:
             day = int(self.name.name.split('_')[-1])
