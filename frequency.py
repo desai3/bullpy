@@ -2,10 +2,13 @@ import calendar
 import datetime
 
 
+def get_proleptic_month(dt: datetime):
+    return 12 * dt.year + dt.month - 1
+
 def plus_months(dt: datetime, months_to_add: int) -> datetime:
     if not months_to_add:
         return dt
-    months_count = 12 * dt.year + dt.month - 1
+    months_count = get_proleptic_month(dt)
     calc_month = months_count + months_to_add
     year = calc_month // 12
     month = calc_month % 12 + 1
@@ -159,3 +162,18 @@ class Frequency(object):
 
     def __repr__(self):
         return f"Frequency(years={self._years}, months={self._months}, days={self._days})"
+
+
+def between(start: datetime, end: datetime) -> Frequency:
+    tot_months = get_proleptic_month(end) - get_proleptic_month(start)
+    days = end.day - start.day
+
+    if tot_months > 0 and days < 0:
+        tot_months -= 1
+        calc_date = plus_months(start, tot_months)
+        days = end.toordinal() - calc_date.toordinal()
+    elif tot_months < 0 and days > 0:
+        tot_months += 1
+        days -= calendar.monthrange(end.year, end.month)[1]
+    years, months = divmod(tot_months, 12)
+    return Frequency(years=years, months=months, days=days)

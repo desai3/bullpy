@@ -4,7 +4,8 @@ import calendar
 from calendars import HolidayCalendar
 from roll_convention import RollConvention, RollConventionType
 from bdayadj import BDayAdj, BDayAdjType
-from stub_convention import StubConventionType
+from stub_convention import StubConvention, StubConventionType
+from frequency import Frequency
 
 
 def first_not_null(a, b):
@@ -20,7 +21,7 @@ class PeriodicSchedule(object):
     def __init__(self,
                  unadjusted_start_dt: datetime,
                  unadjusted_end_dt: datetime,
-                 freq,
+                 freq: Frequency,
                  bday_adj: BDayAdj,
                  stub_conv,
                  eom: bool):
@@ -94,6 +95,26 @@ class PeriodicSchedule(object):
         return first_not_null(self.last_reg_start_dt, self.end_dt)
 
     def _calculated_roll_conv(self,
-                              calculated_first_reg_start_dt: datetime,
-                              calculated_last_reg_end_dt: datetime) :
-        stub_conv = first_not_null(self.stub_conv, Stub)
+                              calced_first_reg_start_dt: datetime,
+                              calced_last_reg_end_dt: datetime) :
+        stub_conv = first_not_null(self.stub_conv, StubConvention(StubConventionType.NONE))
+
+        if self.roll_conv == RollConvention(RollConventionType.EOM):
+            derived = stub_conv.to_roll_convention(calced_first_reg_start_dt, calced_last_reg_end_dt, self.freq, True)
+            if derived == RollConvention(RollConventionType.NONE):
+                return RollConvention(RollConventionType.EOM)
+            else:
+                return derived
+
+        if self.roll_conv is None or self.roll_conv == RollConvention(RollConventionType.NONE):
+            return stub_conv.to_roll_convention(calced_first_reg_start_dt, calced_last_reg_end_dt, self.freq, False)
+
+        return first_not_null(self.roll_conv, RollConvention(RollConventionType.NONE))
+
+    def _generate_unadjusted_dates(self,
+                                   start: datetime,
+                                   reg_start: datetime,
+                                   reg_end: datetime,
+                                   end: datetime,
+                                   roll_conv: RollConvention):
+        pass

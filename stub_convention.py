@@ -2,7 +2,7 @@ import calendar
 import enum
 import datetime
 
-from frequency import plus_days, Frequency
+from frequency import plus_days, Frequency, get_proleptic_month
 from roll_convention import RollConvention, RollConventionType
 
 from IPython.core.debugger import set_trace
@@ -163,7 +163,7 @@ class StubConvention(object):
         assert freq is not None, 'Frequency cannot be None'
         if self._type == RollConventionType.NONE.name and freq.is_month_based():
             if (start.day != end.day and
-                    (start.year * 12 + start.month - 1) != (end.year * 12 + end.month - 1) and
+                    (get_proleptic_month(start) != get_proleptic_month(end)) and
                     (start.day == calendar.monthrange(start.year, start.month)[1] or
                      end.day == calendar.monthrange(end.year, end.month)[1])):
                 if eom:
