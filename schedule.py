@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from datetime import datetime
 
 from schedule_period import SchedulePeriod
@@ -7,16 +7,18 @@ from frequency import Frequency
 
 
 class Schedule(object):
-    def __init__(self, periods: List[SchedulePeriod], freq: Frequency, roll_conv: RollConvention):
+    def __init__(self, periods: List[SchedulePeriod],
+                 freq: Frequency | None = None,
+                 roll_conv: RollConvention | None = None):
         self.periods = periods
-        self.freq = freq
-        self.roll_conv = roll_conv
+        self.freq = freq if freq is not None else Frequency()
+        self.roll_conv = roll_conv if roll_conv is not None else RollConvention(RollConventionType.NONE)
 
     def size(self) -> int:
-        return len(self.perids)
+        return len(self.periods)
 
     def is_term(self) -> bool:
-        return self.size() == 1 and self.freq is None
+        return self.size() == 1 and self.freq.is_term()
 
     def is_single_period(self) -> bool:
         return self.size() == 1
@@ -30,17 +32,17 @@ class Schedule(object):
     def get_last_period(self) -> SchedulePeriod:
         return self.periods[-1]
 
-    def get_start_dt(self) -> datetime:
-        return self.get_first_period().get_start_dt()
+    def get_start_date(self) -> datetime:
+        return self.get_first_period().get_start_date()
 
-    def get_end_dt(self) -> datetime:
-        return self.get_last_period().get_end_dt()
+    def get_end_date(self) -> datetime:
+        return self.get_last_period().get_end_date()
 
-    def get_unadjusted_start_dt(self) -> datetime:
-        return self.get_first_period().get_unadjusted_start_dt()
+    def get_unadjusted_start_date(self) -> datetime:
+        return self.get_first_period().get_unadjusted_start_date()
 
-    def get_unadjusted_end_dt(self) -> datetime:
-        return self.get_last_period().get_unadjusted_end_dt()
+    def get_unadjusted_end_date(self) -> datetime:
+        return self.get_last_period().get_unadjusted_end_date()
 
     def get_initial_stub(self) -> SchedulePeriod | None:
         if self.is_initial_stub():
@@ -72,7 +74,7 @@ class Schedule(object):
             return self.periods[start_stub: len(self.periods) - end_stub]
 
     def get_unadjusted_dates(self) -> List[datetime]:
-        dates = [self.get_unadjusted_start_dt()]
+        dates = [self.get_unadjusted_start_date()]
         for p in self.periods:
             dates.append(p.get_unadjusted_end_date())
         return dates
@@ -89,8 +91,8 @@ class Schedule(object):
         first = self.get_first_period()
         last = self.get_last_period()
 
-        sp = SchedulePeriod(first.get_start_dt(), last.get_end_dt(), first.get_unadjusted_start_dt(),
-                            last.get_unadjusted_end_dt())
+        sp = SchedulePeriod(first.get_start_date(), last.get_end_date(), first.get_unadjusted_start_date(),
+                            last.get_unadjusted_end_date())
         return Schedule.of_term(sp)
 
     def merge(self, group_size: int, first_reg_start_dt: datetime, last_reg_end_dt: datetime):
@@ -101,9 +103,9 @@ class Schedule(object):
 
         for i in range(self.size()):
             period = self.periods[i]
-            if period.get_unadjusted_start_dt() == first_reg_start_dt or period.get_start_dt() == last_reg_end_dt:
+            if period.get_unadjusted_start_date() == first_reg_start_dt or period.get_start_date() == last_reg_end_dt:
                 start_reg_i = i
-            if period.get_unadjusted_end_dt() == last_reg_end_dt or period.get_end_dt() == last_reg_end_dt:
+            if period.get_unadjusted_end_date() == last_reg_end_dt or period.get_end_date() == last_reg_end_dt:
                 end_reg_i = i + 1
 
         if start_reg_i < 0:
@@ -159,7 +161,23 @@ class Schedule(object):
         if len(accruals) == 1:
             return first
         last = accruals[-1]
-        return SchedulePeriod(first.get_start_dt(), last.get_end_dt(),
-                              first.get_unadjusted_start_dt(), last.get_unadjusted_end_dt())
+        return SchedulePeriod(first.get_start_date(), last.get_end_date(),
+                              first.get_unadjusted_start_date(), last.get_unadjusted_end_date())
 
+    def get_frequency(self) -> Frequency:
+        return self.freq
 
+    def get_roll_convention(self) -> RollConvention:
+        return self.roll_conv
+
+    def get_periods(self) -> List[SchedulePeriod]:
+        return self.periods
+
+    def get_period(self, i: int) -> SchedulePeriod:
+        return self.periods[i]
+
+    def get_stubs(self, prefer_final: bool) -> Tuple[SchedulePeriod | None]:
+        init = self.get_initial_stub()
+        if prefer_final and self.size() == 1 and init is not None:
+            return None, init
+        return init, self.get_final_stub()

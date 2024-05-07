@@ -78,20 +78,20 @@ class SchedulePeriod(object):
 
         return PeriodicSchedule(self.unadjusted_start_dt, self.unadjusted_end_dt, freq, bday_adj, roll_conv, stub_conv)
 
-    def get_start_dt(self):
+    def get_start_date(self):
         return self.start_dt
 
-    def get_end_dt(self):
+    def get_end_date(self):
         return self.end_dt
 
-    def get_unadjusted_start_dt(self):
+    def get_unadjusted_start_date(self):
         return self.unadjusted_start_dt
 
-    def get_unadjusted_end_dt(self):
+    def get_unadjusted_end_date(self):
         return self.unadjusted_end_dt
 
     def __eq__(self, o):
-        return type(o, type(self)) and \
+        return isinstance(o, type(self)) and \
             o.start_dt == self.start_dt and \
             o.end_dt == self.end_dt and \
             o.unadjusted_start_dt == self.unadjusted_start_dt and \

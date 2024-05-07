@@ -35,18 +35,18 @@ def test_null():
 
 def test_of_all():
     sp = SchedulePeriod(JUL_05, JUL_18, JUL_04, JUL_17)
-    assert sp.get_start_dt() == JUL_05
-    assert sp.get_end_dt() == JUL_18
-    assert sp.get_unadjusted_start_dt() == JUL_04
-    assert sp.get_unadjusted_end_dt() == JUL_17
+    assert sp.get_start_date() == JUL_05
+    assert sp.get_end_date() == JUL_18
+    assert sp.get_unadjusted_start_date() == JUL_04
+    assert sp.get_unadjusted_end_date() == JUL_17
 
 
 def test_no_unadjsted():
     sp = SchedulePeriod(JUL_05, JUL_18)
-    assert sp.get_start_dt() == JUL_05
-    assert sp.get_end_dt() == JUL_18
-    assert sp.get_unadjusted_start_dt() == JUL_05
-    assert sp.get_unadjusted_end_dt() == JUL_18
+    assert sp.get_start_date() == JUL_05
+    assert sp.get_end_date() == JUL_18
+    assert sp.get_unadjusted_start_date() == JUL_05
+    assert sp.get_unadjusted_end_date() == JUL_18
 
 
 def test_year_fraction():
@@ -97,7 +97,6 @@ def test_contains_null():
 
 def test_to_adjusted():
     sp = SchedulePeriod(JUN_15, SEP_17)
-
 
 
 if __name__ == '__main__':
