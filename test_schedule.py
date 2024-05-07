@@ -65,8 +65,167 @@ def test_term():
     assert sch.get_regular_periods() == [P1_STUB]
     with pytest.raises(IndexError):
         sch.get_period(1)
-    assert sch.get_unadjusted_dates() == [JUL_04, JUL_17 ]
+    assert sch.get_unadjusted_dates() == [JUL_04, JUL_17]
+
+
+def test_size1_stub():
+    sch = Schedule([P1_STUB], freq=Frequency(months=1), roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch.size() == 1
+    assert not sch.is_term()
+    assert sch.is_single_period()
+    assert sch.get_frequency() == Frequency(months=1)
+    assert sch.get_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert not sch.is_end_of_month_convention()
+    assert sch.get_periods() == [P1_STUB]
+    assert sch.get_period(0) == P1_STUB
+    assert sch.get_start_date() == P1_STUB.get_start_date()
+    assert sch.get_end_date() == P1_STUB.get_end_date()
+    assert sch.get_unadjusted_start_date() == P1_STUB.get_unadjusted_start_date()
+    assert sch.get_unadjusted_end_date() == P1_STUB.get_unadjusted_end_date()
+    assert sch.get_first_period() == P1_STUB
+    assert sch.get_last_period() == P1_STUB
+    assert sch.get_initial_stub() == P1_STUB
+    assert sch.get_final_stub() is None
+    assert sch.get_stubs(True) == (None, P1_STUB)
+    assert sch.get_stubs(False) == (P1_STUB, None)
+    assert sch.get_regular_periods() == []
+    with pytest.raises(IndexError):
+        sch.get_period(1)
+    assert sch.get_unadjusted_dates() == [JUL_04, JUL_17]
+
+
+def test_size1_nostub():
+    sch = Schedule([P2_NORMAL], freq=Frequency(months=1), roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch.size() == 1
+    assert not sch.is_term()
+    assert sch.is_single_period()
+    assert sch.get_frequency() == Frequency(months=1)
+    assert sch.get_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert not sch.is_end_of_month_convention()
+    assert sch.get_periods() == [P2_NORMAL]
+    assert sch.get_period(0) == P2_NORMAL
+    assert sch.get_start_date() == P2_NORMAL.get_start_date()
+    assert sch.get_end_date() == P2_NORMAL.get_end_date()
+    assert sch.get_unadjusted_start_date() == P2_NORMAL.get_unadjusted_start_date()
+    assert sch.get_unadjusted_end_date() == P2_NORMAL.get_unadjusted_end_date()
+    assert sch.get_first_period() == P2_NORMAL
+    assert sch.get_last_period() == P2_NORMAL
+    assert sch.get_initial_stub() is None
+    assert sch.get_final_stub() is None
+    assert sch.get_stubs(True) == (None, None)
+    assert sch.get_stubs(False) == (None, None)
+    assert sch.get_regular_periods() == [P2_NORMAL]
+    with pytest.raises(IndexError):
+        sch.get_period(1)
+    assert sch.get_unadjusted_dates() == [JUL_17, AUG_17]
+
+
+def test_size1_no_stub():
+    sch = Schedule([P2_NORMAL], freq=Frequency(months=1), roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch.size() == 1
+    assert not sch.is_term()
+    assert sch.is_single_period()
+    assert sch.get_frequency() == Frequency(months=1)
+    assert sch.get_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert not sch.is_end_of_month_convention()
+    assert sch.get_periods() == [P2_NORMAL]
+    assert sch.get_period(0) == P2_NORMAL
+    assert sch.get_start_date() == P2_NORMAL.get_start_date()
+    assert sch.get_end_date() == P2_NORMAL.get_end_date()
+    assert sch.get_unadjusted_start_date() == P2_NORMAL.get_unadjusted_start_date()
+    assert sch.get_unadjusted_end_date() == P2_NORMAL.get_unadjusted_end_date()
+    assert sch.get_first_period() == P2_NORMAL
+    assert sch.get_last_period() == P2_NORMAL
+    assert sch.get_initial_stub() is None
+    assert sch.get_final_stub() is None
+    assert sch.get_stubs(True) == (None, None)
+    assert sch.get_stubs(False) == (None, None)
+    assert sch.get_regular_periods() == [P2_NORMAL]
+    with pytest.raises(IndexError):
+        sch.get_period(1)
+    assert sch.get_unadjusted_dates() == [JUL_17, AUG_17]
+
+
+def test_size2_init_stub():
+    sch = Schedule([P1_STUB, P2_NORMAL], freq=Frequency(months=1), roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch.size() == 2
+    assert not sch.is_term()
+    assert not sch.is_single_period()
+    assert sch.get_frequency() == Frequency(months=1)
+    assert sch.get_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert not sch.is_end_of_month_convention()
+    assert sch.get_periods() == [P1_STUB, P2_NORMAL]
+    assert sch.get_period(0) == P1_STUB
+    assert sch.get_period(1) == P2_NORMAL
+    assert sch.get_start_date() == P1_STUB.get_start_date()
+    assert sch.get_end_date() == P2_NORMAL.get_end_date()
+    assert sch.get_unadjusted_start_date() == P1_STUB.get_unadjusted_start_date()
+    assert sch.get_unadjusted_end_date() == P2_NORMAL.get_unadjusted_end_date()
+    assert sch.get_first_period() == P1_STUB
+    assert sch.get_last_period() == P2_NORMAL
+    assert sch.get_initial_stub() == P1_STUB
+    assert sch.get_final_stub() is None
+    assert sch.get_stubs(True) == (P1_STUB, None)
+    assert sch.get_stubs(False) == (P1_STUB, None)
+    assert sch.get_regular_periods() == [P2_NORMAL]
+    with pytest.raises(IndexError):
+        sch.get_period(2)
+    assert sch.get_unadjusted_dates() == [JUL_04, JUL_17, AUG_17]
+
+
+def test_size2_no_stub():
+    sch = Schedule([P2_NORMAL, P3_NORMAL], freq=Frequency(months=1), roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch.size() == 2
+    assert not sch.is_term()
+    assert not sch.is_single_period()
+    assert sch.get_frequency() == Frequency(months=1)
+    assert sch.get_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert not sch.is_end_of_month_convention()
+    assert sch.get_periods() == [P2_NORMAL, P3_NORMAL]
+    assert sch.get_period(0) == P2_NORMAL
+    assert sch.get_period(1) == P3_NORMAL
+    assert sch.get_start_date() == P2_NORMAL.get_start_date()
+    assert sch.get_end_date() == P3_NORMAL.get_end_date()
+    assert sch.get_unadjusted_start_date() == P2_NORMAL.get_unadjusted_start_date()
+    assert sch.get_unadjusted_end_date() == P3_NORMAL.get_unadjusted_end_date()
+    assert sch.get_first_period() == P2_NORMAL
+    assert sch.get_last_period() == P3_NORMAL
+    assert sch.get_initial_stub() is None
+    assert sch.get_final_stub() is None
+    assert sch.get_stubs(True) == (None, None)
+    assert sch.get_stubs(False) == (None, None)
+    assert sch.get_regular_periods() == [P2_NORMAL, P3_NORMAL]
+    with pytest.raises(IndexError):
+        sch.get_period(2)
+    assert sch.get_unadjusted_dates() == [JUL_17, AUG_17, SEP_17]
+
+
+def test_size2_final_stub():
+    sch = Schedule([P3_NORMAL, P4_STUB], freq=Frequency(months=1), roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch.size() == 2
+    assert not sch.is_term()
+    assert not sch.is_single_period()
+    assert sch.get_frequency() == Frequency(months=1)
+    assert sch.get_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert not sch.is_end_of_month_convention()
+    assert sch.get_periods() == [P3_NORMAL, P4_STUB]
+    assert sch.get_period(0) == P3_NORMAL
+    assert sch.get_period(1) == P4_STUB
+    assert sch.get_start_date() == P3_NORMAL.get_start_date()
+    assert sch.get_end_date() == P4_STUB.get_end_date()
+    assert sch.get_unadjusted_start_date() == P3_NORMAL.get_unadjusted_start_date()
+    assert sch.get_unadjusted_end_date() == P4_STUB.get_unadjusted_end_date()
+    assert sch.get_first_period() == P3_NORMAL
+    assert sch.get_last_period() == P4_STUB
+    assert sch.get_initial_stub() is None
+    assert sch.get_final_stub() == P4_STUB
+    assert sch.get_stubs(True) == (None, P4_STUB)
+    assert sch.get_stubs(False) == (None, P4_STUB)
+    assert sch.get_regular_periods() == [P3_NORMAL]
+    with pytest.raises(IndexError):
+        sch.get_period(2)
+    assert sch.get_unadjusted_dates() == [AUG_17, SEP_17, SEP_30]
 
 
 if __name__ == '__main__':
-    test_term()
+    test_size1_stub()
