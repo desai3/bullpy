@@ -3,7 +3,7 @@ import datetime
 import calendar
 import enum
 
-from frequency import plus_days
+from .frequency import plus_days
 
 
 def easter(year: int) -> datetime:

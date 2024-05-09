@@ -1,7 +1,6 @@
 import pytest
-from IPython.core.debugger import set_trace
 
-from frequency import Frequency
+from ...schedule.frequency import Frequency
 
 
 def test_not_negative():

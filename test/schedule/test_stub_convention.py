@@ -1,11 +1,10 @@
 from datetime import datetime
 
 import pytest
-from IPython.core.debugger import set_trace
 
-from stub_convention import StubConvention, StubConventionType
-from roll_convention import RollConvention, RollConventionType
-from frequency import Frequency
+from ...schedule.stub_convention import StubConvention, StubConventionType
+from ...schedule.roll_convention import RollConvention, RollConventionType
+from ...schedule.frequency import Frequency
 
 
 def test_None():

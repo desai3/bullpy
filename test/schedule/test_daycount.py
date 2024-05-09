@@ -1,6 +1,6 @@
 import datetime
 
-from daycount import DayCountType, DayCount
+from ...schedule.daycount import DayCountType, DayCount
 
 
 # datetime.datetime(2023, 11, 30), datetime.datetime(2024, 1, 30)

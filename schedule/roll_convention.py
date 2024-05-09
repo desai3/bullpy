@@ -2,10 +2,8 @@ import enum
 import datetime
 import calendar
 
-# from dateutil.relativedelta import relativedelta
-
-from calendars import day_of_week_in_month, CombinedHolidayCalendar,HolidayCalendarType, HolidayCalendar
-from frequency import plus_days, plus_months, Frequency
+from .calendars import day_of_week_in_month, CombinedHolidayCalendar,HolidayCalendarType, HolidayCalendar
+from .frequency import plus_days, plus_months, Frequency
 
 
 class RollConventionType(enum.Enum):

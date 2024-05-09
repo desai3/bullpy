@@ -1,8 +1,9 @@
 from datetime import datetime
 # from dateutil.relativedelta import relativedelta
 
-from roll_convention import RollConventionType, RollConvention
-from frequency import Frequency, plus_months
+from ...schedule.roll_convention import RollConventionType, RollConvention
+from ...schedule.frequency import Frequency, plus_months
+
 
 def test_none():
     dt = datetime(2014, 8, 17)

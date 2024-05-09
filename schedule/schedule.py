@@ -3,9 +3,9 @@ from datetime import datetime
 
 from IPython.core.debugger import set_trace
 
-from schedule_period import SchedulePeriod
-from roll_convention import RollConvention, RollConventionType
-from frequency import Frequency
+from .schedule_period import SchedulePeriod
+from .roll_convention import RollConvention, RollConventionType
+from .frequency import Frequency
 
 
 class Schedule(object):

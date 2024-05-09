@@ -5,6 +5,7 @@ import datetime
 def get_proleptic_month(dt: datetime):
     return 12 * dt.year + dt.month - 1
 
+
 def plus_months(dt: datetime, months_to_add: int) -> datetime:
     if not months_to_add:
         return dt

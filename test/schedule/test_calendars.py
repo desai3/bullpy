@@ -2,7 +2,7 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from calendars import HolidayCalendar, HolidayCalendarType, CustomeHolidayCalendar
+from ...schedule.calendars import HolidayCalendar, HolidayCalendarType, CustomeHolidayCalendar
 
 
 class CalData(object):

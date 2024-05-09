@@ -2,10 +2,10 @@ import datetime
 
 import pytest
 
-from schedule_period import SchedulePeriod
-from daycount import DayCount, DayCountType
-from frequency import between, Frequency
-from roll_convention import RollConvention, RollConventionType
+from ...schedule.schedule_period import SchedulePeriod
+from ...schedule.daycount import DayCount, DayCountType
+from ...schedule.frequency import between, Frequency
+from ...schedule.roll_convention import RollConvention, RollConventionType
 
 JUN_15 = datetime.datetime(2014, 6, 15)
 JUN_16 = datetime.datetime(2014, 6, 16)

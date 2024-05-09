@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from bdayadj import BDayAdj, BDayAdjType
-from calendars import CustomeHolidayCalendar
+from ...schedule.bdayadj import BDayAdj, BDayAdjType
+from ...schedule.calendars import CustomeHolidayCalendar
 
 
 def test_bdayadjust():

@@ -2,10 +2,8 @@ import calendar
 import enum
 import datetime
 
-from frequency import plus_days, Frequency, get_proleptic_month
-from roll_convention import RollConvention, RollConventionType
-
-from IPython.core.debugger import set_trace
+from .frequency import plus_days, Frequency, get_proleptic_month
+from .roll_convention import RollConvention, RollConventionType
 
 
 class StubConventionType(enum.Enum):
