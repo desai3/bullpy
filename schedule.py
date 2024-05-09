@@ -1,6 +1,8 @@
 from typing import List, Tuple
 from datetime import datetime
 
+from IPython.core.debugger import set_trace
+
 from schedule_period import SchedulePeriod
 from roll_convention import RollConvention, RollConventionType
 from frequency import Frequency
@@ -80,10 +82,10 @@ class Schedule(object):
         return dates
 
     def is_end_of_month_convention(self) -> bool:
-        return self.roll_conv == RollConventionType.EOM
+        return self.roll_conv == RollConvention(RollConventionType.EOM)
 
     def of_term(self, period: SchedulePeriod):
-        return Schedule([period], None, None)
+        return Schedule([period])
 
     def merge_to_term(self):
         if self.is_term():
@@ -93,7 +95,7 @@ class Schedule(object):
 
         sp = SchedulePeriod(first.get_start_date(), last.get_end_date(), first.get_unadjusted_start_date(),
                             last.get_unadjusted_end_date())
-        return Schedule.of_term(sp)
+        return self.of_term(sp)
 
     def merge(self, group_size: int, first_reg_start_dt: datetime, last_reg_end_dt: datetime):
         if self.is_single_period() or group_size == 1:
@@ -181,3 +183,21 @@ class Schedule(object):
         if prefer_final and self.size() == 1 and init is not None:
             return None, init
         return init, self.get_final_stub()
+
+    def get_period_end_date(self, dt: datetime):
+        for sp in self.periods:
+            if sp.contains(dt):
+                return sp.get_end_date()
+        raise ValueError("Date is not contained in any periods")
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        elif self.freq != other.freq:
+            return False
+        elif self.roll_conv != other.roll_conv:
+            return False
+        elif self.periods != other.periods:
+            return False
+        else:
+            return True
