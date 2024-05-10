@@ -450,5 +450,69 @@ def test_merge_group_size_one_no_change():
     assert sch.merge(1, P2_NORMAL.get_start_date(), P6_NORMAL.get_end_date()) == sch
 
 
+def test_merge_group_size_invalid():
+    sch = Schedule([P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL], freq=Frequency(months=1),
+                   roll_conv=RollConvention(RollConventionType.DAY_17))
+
+    with pytest.raises(ValueError):
+        sch.merge_regular(0, True)
+    with pytest.raises(ValueError):
+        sch.merge_regular(0, False)
+    with pytest.raises(ValueError):
+        sch.merge_regular(-1, True)
+    with pytest.raises(ValueError):
+        sch.merge_regular(-1, False)
+    with pytest.raises(ValueError):
+        sch.merge(0, P2_NORMAL.get_unadjusted_start_date(), P6_NORMAL.get_unadjusted_end_date())
+    with pytest.raises(ValueError):
+        sch.merge(-1, P2_NORMAL.get_unadjusted_start_date(), P6_NORMAL.get_unadjusted_end_date())
+
+
+def test_merge_bad_date():
+    sch = Schedule([P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL], freq=Frequency(months=1),
+                   roll_conv=RollConvention(RollConventionType.DAY_17))
+
+    with pytest.raises(ValueError):
+        sch.merge(2, JUL_03, AUG_17)
+    with pytest.raises(ValueError):
+        sch.merge(2, JUL_17, SEP_30)
+
+
+def test_merge_bad_group_size():
+    sch = Schedule([P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL], freq=Frequency(months=1),
+                   roll_conv=RollConvention(RollConventionType.DAY_17))
+    with pytest.raises(ValueError):
+        sch.merge(2, P2_NORMAL.get_unadjusted_start_date(), P6_NORMAL.get_unadjusted_end_date())
+
+
+def test_equals():
+    sch1 = Schedule([P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL], freq=Frequency(months=1),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    sch2 = Schedule([P2_NORMAL, P3_NORMAL], freq=Frequency(months=1),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    sch3 = Schedule([P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL], freq=Frequency(months=3),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    sch4 = Schedule([P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL], freq=Frequency(months=3),
+                    roll_conv=RollConvention(RollConventionType.DAY_1))
+    assert sch1 == sch1
+    assert sch1 != sch2
+    assert sch1 != sch3
+    assert sch1 != sch4
+
+
+def test_to_adjusted():
+    sp1 = SchedulePeriod(JUN_15, SEP_17)
+    sp2 = SchedulePeriod(SEP_17, SEP_30)
+    sp3 = SchedulePeriod(JUN_16, SEP_17, JUN_15, SEP_17)
+
+    sch1 = Schedule([sp1, sp2], freq=Frequency(months=3), roll_conv=RollConvention(RollConventionType.DAY_17))
+    sch2 = Schedule([sp3, sp2], freq=Frequency(months=3), roll_conv=RollConvention(RollConventionType.DAY_17))
+
+    assert sch1.to_adjusted(lambda x: x) == sch1
+    assert sch1.to_adjusted(lambda x: JUN_16 if x == JUN_15 else x) == sch2
+
+
+
+
 if __name__ == '__main__':
     test_merge_group2_within2_init_stub()

@@ -1,3 +1,5 @@
+from typing import Callable
+
 from .daycount import DayCount
 from .roll_convention import RollConvention
 from .stub_convention import StubConventionType
@@ -95,3 +97,19 @@ class SchedulePeriod(object):
             o.end_dt == self.end_dt and \
             o.unadjusted_start_dt == self.unadjusted_start_dt and \
             o.unadjusted_end_dt == self.unadjusted_end_dt
+
+    def to_adjusted(self, adjuster: Callable[[datetime], datetime], merge_type: int):
+        res_start = adjuster(self.start_dt)
+        res_end = adjuster(self.end_dt)
+
+        if merge_type == -1 and res_start == res_end:
+            res_start = self.start_dt
+        elif merge_type == 1 and res_start == res_end:
+            res_end = self.end_dt
+
+        if res_start == self.start_dt and res_end == self.end_dt:
+            return self
+        return SchedulePeriod(res_start, res_end, self.unadjusted_start_dt, self.unadjusted_end_dt)
+
+
+

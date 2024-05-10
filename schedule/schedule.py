@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 from datetime import datetime
 
 from IPython.core.debugger import set_trace
@@ -99,6 +99,9 @@ class Schedule(object):
         return self.of_term(sp)
 
     def merge(self, group_size: int, first_reg_start_dt: datetime, last_reg_end_dt: datetime):
+        if group_size <= 0:
+            raise ValueError("group_size should be a positive integer")
+
         if self.is_single_period() or group_size == 1:
             return self
         start_reg_i = -1
@@ -137,6 +140,9 @@ class Schedule(object):
                         self.roll_conv)
 
     def merge_regular(self, group_size: int, roll_forward: bool):
+        if group_size <= 0:
+            raise ValueError("group_size should be a positive integer")
+
         if self.is_single_period() or group_size == 1:
             return self
 
@@ -193,6 +199,19 @@ class Schedule(object):
             if sp.contains(dt):
                 return sp.get_end_date()
         raise ValueError("Date is not contained in any periods")
+
+    def to_adjusted(self, adjuster: Callable[[datetime], datetime]):
+        adjusted = False
+        new_periods = []
+        size = self.size()
+        for i, sp in enumerate(self.periods):
+            merge_type = -1 if i == 0 else (1 if i == size -1 else 0)
+            adj_sp = sp.to_adjusted(adjuster, merge_type)
+            new_periods.append(adj_sp)
+            adjusted = adjusted or (adj_sp != sp)
+        return Schedule(new_periods, self.freq, self.roll_conv) if adjusted else self
+
+
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
