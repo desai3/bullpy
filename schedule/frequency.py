@@ -164,6 +164,9 @@ class Frequency(object):
     def __repr__(self):
         return f"Frequency(years={self._years}, months={self._months}, days={self._days})"
 
+    def multiply(self, x: int):
+        return Frequency(self._years * x, self._months * x, self._days * x)
+
 
 def between(start: datetime, end: datetime) -> Frequency:
     tot_months = get_proleptic_month(end) - get_proleptic_month(start)
@@ -178,3 +181,4 @@ def between(start: datetime, end: datetime) -> Frequency:
         days -= calendar.monthrange(end.year, end.month)[1]
     years, months = divmod(tot_months, 12)
     return Frequency(years=years, months=months, days=days)
+

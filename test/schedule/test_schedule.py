@@ -314,5 +314,38 @@ def test_merge_to_term_size1_stub():
     assert sch.merge_to_term() == Schedule([P1_STUB])
 
 
+def test_merge_group2_within2_init_stub():
+    sch1 = Schedule([P1_STUB, P2_NORMAL, P3_NORMAL], freq=Frequency(months=1),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    sch2 = Schedule([P1_STUB, P2_3], freq=Frequency(months=2),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch1.merge_regular(2, True) == sch2
+    assert sch1.merge_regular(2, False) == sch2
+    assert sch1.merge(2, P2_NORMAL.get_unadjusted_start_date(), P3_NORMAL.get_unadjusted_end_date()) == sch2
+    assert sch1.merge(2, P2_NORMAL.get_start_date(), P3_NORMAL.get_end_date()) == sch2
+
+
+def test_merge_group2_within2_no_stub():
+    sch1 = Schedule([P2_NORMAL, P3_NORMAL], freq=Frequency(months=1),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    sch2 = Schedule([P2_3], freq=Frequency(months=2),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch1.merge_regular(2, True) == sch2
+    assert sch1.merge_regular(2, False) == sch2
+    assert sch1.merge(2, P2_NORMAL.get_unadjusted_start_date(), P3_NORMAL.get_unadjusted_end_date()) == sch2
+    assert sch1.merge(2, P2_NORMAL.get_start_date(), P3_NORMAL.get_end_date()) == sch2
+
+
+def test_merge_group2_within2_final_stub():
+    sch1 = Schedule([P2_NORMAL, P3_NORMAL, P4_STUB], freq=Frequency(months=1),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    sch2 = Schedule([P2_3, P4_STUB], freq=Frequency(months=2),
+                    roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch1.merge_regular(2, True) == sch2
+    assert sch1.merge_regular(2, False) == sch2
+    assert sch1.merge(2, P2_NORMAL.get_unadjusted_start_date(), P3_NORMAL.get_unadjusted_end_date()) == sch2
+    assert sch1.merge(2, P2_NORMAL.get_start_date(), P3_NORMAL.get_end_date()) == sch2
+
+
 if __name__ == '__main__':
-    test_merge_to_term()
+    test_merge_group2_within2_init_stub()

@@ -125,13 +125,13 @@ class Schedule(object):
 
         new_sched = []
         if start_reg_i > 0:
-            new_sched += self.create_schedule_period(self.periods[0: start_reg_i])
+            new_sched += [self.create_schedule_period(self.periods[0: start_reg_i])]
         for i in range(start_reg_i, end_reg_i, group_size):
-            new_sched += self.create_schedule_period(self.period[i: i + group_size])
+            new_sched += [self.create_schedule_period(self.periods[i: i + group_size])]
         if end_reg_i < len(self.periods):
-            new_sched += self.create_schedule_period(self.periods[end_reg_i, len(self.periods)])
+            new_sched += [self.create_schedule_period(self.periods[end_reg_i: len(self.periods)])]
 
-        return Schedule(new_sched, self.freq * group_size if self.freq is not None else self.freq, self.roll_conv)
+        return Schedule(new_sched, self.freq.multiply(group_size) if self.freq is not None else self.freq, self.roll_conv)
 
     def merge_regular(self, group_size: int, roll_forward: bool):
         if self.is_single_period() or group_size == 1:
@@ -155,7 +155,7 @@ class Schedule(object):
         final_stub = self.get_final_stub()
         if final_stub is not None:
             new_sched.append(final_stub)
-        return Schedule(new_sched, self.freq * group_size if self.freq is not None else self.freq, self.roll_conv)
+        return Schedule(new_sched, self.freq.multiply(group_size) if self.freq is not None else self.freq, self.roll_conv)
 
     @staticmethod
     def create_schedule_period(accruals: List[SchedulePeriod]) -> SchedulePeriod:
