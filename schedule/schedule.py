@@ -105,7 +105,8 @@ class Schedule(object):
 
         for i in range(self.size()):
             period = self.periods[i]
-            if period.get_unadjusted_start_date() == first_reg_start_dt or period.get_start_date() == last_reg_end_dt:
+            if period.get_unadjusted_start_date() == first_reg_start_dt or \
+                    period.get_start_date() == first_reg_start_dt:
                 start_reg_i = i
             if period.get_unadjusted_end_date() == last_reg_end_dt or period.get_end_date() == last_reg_end_dt:
                 end_reg_i = i + 1
@@ -131,7 +132,8 @@ class Schedule(object):
         if end_reg_i < len(self.periods):
             new_sched += [self.create_schedule_period(self.periods[end_reg_i: len(self.periods)])]
 
-        return Schedule(new_sched, self.freq.multiply(group_size) if self.freq is not None else self.freq, self.roll_conv)
+        return Schedule(new_sched, self.freq.multiply(group_size) if self.freq is not None else self.freq,
+                        self.roll_conv)
 
     def merge_regular(self, group_size: int, roll_forward: bool):
         if self.is_single_period() or group_size == 1:
@@ -155,7 +157,8 @@ class Schedule(object):
         final_stub = self.get_final_stub()
         if final_stub is not None:
             new_sched.append(final_stub)
-        return Schedule(new_sched, self.freq.multiply(group_size) if self.freq is not None else self.freq, self.roll_conv)
+        return Schedule(new_sched, self.freq.multiply(group_size) if self.freq is not None else self.freq,
+                        self.roll_conv)
 
     @staticmethod
     def create_schedule_period(accruals: List[SchedulePeriod]) -> SchedulePeriod:
