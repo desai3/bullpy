@@ -425,5 +425,30 @@ def test_merge_group3_within5_backwards():
     assert sch1.merge(3, P4_NORMAL.get_start_date(), P6_NORMAL.get_end_date()) == sch2
 
 
+def test_merge_term_no_change():
+    sch = Schedule.of_term(P1_STUB)
+    assert sch.merge_regular(2, True) == sch
+    assert sch.merge_regular(2, False) == sch
+    assert sch.merge(2, P1_STUB.get_unadjusted_start_date(), P1_STUB.get_unadjusted_end_date()) == sch
+    assert sch.merge(2, P1_STUB.get_start_date(), P1_STUB.get_end_date()) == sch
+
+
+def test_merge_size1_stub():
+    sch = Schedule([P1_STUB], freq=Frequency(months=1), roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch.merge_regular(2, True) == sch
+    assert sch.merge_regular(2, False) == sch
+    assert sch.merge(2, P1_STUB.get_unadjusted_start_date(), P1_STUB.get_unadjusted_end_date()) == sch
+    assert sch.merge(2, P1_STUB.get_start_date(), P1_STUB.get_end_date()) == sch
+
+
+def test_merge_group_size_one_no_change():
+    sch = Schedule([P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL], freq=Frequency(months=1),
+                   roll_conv=RollConvention(RollConventionType.DAY_17))
+    assert sch.merge_regular(1, True) == sch
+    assert sch.merge_regular(1, False) == sch
+    assert sch.merge(1, P2_NORMAL.get_unadjusted_start_date(), P6_NORMAL.get_unadjusted_end_date()) == sch
+    assert sch.merge(1, P2_NORMAL.get_start_date(), P6_NORMAL.get_end_date()) == sch
+
+
 if __name__ == '__main__':
     test_merge_group2_within2_init_stub()

@@ -84,7 +84,8 @@ class Schedule(object):
     def is_end_of_month_convention(self) -> bool:
         return self.roll_conv == RollConvention(RollConventionType.EOM)
 
-    def of_term(self, period: SchedulePeriod):
+    @staticmethod
+    def of_term(period: SchedulePeriod):
         return Schedule([period])
 
     def merge_to_term(self):
