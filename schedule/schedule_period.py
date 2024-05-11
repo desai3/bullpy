@@ -111,5 +111,9 @@ class SchedulePeriod(object):
             return self
         return SchedulePeriod(res_start, res_end, self.unadjusted_start_dt, self.unadjusted_end_dt)
 
-
+    def to_unadjusted(self):
+        if self.unadjusted_start_dt == self.start_dt and self.unadjusted_end_dt == self.end_dt:
+            return self
+        else:
+            return SchedulePeriod(self.unadjusted_start_dt, self.unadjusted_end_dt)
 

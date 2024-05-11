@@ -211,7 +211,8 @@ class Schedule(object):
             adjusted = adjusted or (adj_sp != sp)
         return Schedule(new_periods, self.freq, self.roll_conv) if adjusted else self
 
-
+    def to_unadjusted(self):
+        return Schedule([x.to_unadjusted() for x in self.periods], self.freq, self.roll_conv)
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):

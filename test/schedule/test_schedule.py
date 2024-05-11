@@ -512,6 +512,21 @@ def test_to_adjusted():
     assert sch1.to_adjusted(lambda x: JUN_16 if x == JUN_15 else x) == sch2
 
 
+def test_to_adjusted_small_first_last():
+    sp1 = SchedulePeriod(JUL_03, JUL_04, JUL_03, JUL_04)
+    sp2 = SchedulePeriod(JUL_04, AUG_16)
+    sp3 = SchedulePeriod(AUG_16, AUG_17, AUG_16, AUG_17)
+
+    sch1 = Schedule([sp1, sp2, sp3], freq=Frequency(months=1), roll_conv=RollConvention(RollConventionType.DAY_4))
+    assert sch1.to_adjusted(lambda x: JUL_04 if x == JUL_03 else AUG_16 if x == AUG_17 else x) == sch1
+
+
+def test_to_unadjusted():
+    sp1 = SchedulePeriod(JUL_17, OCT_17, JUL_16, OCT_15)
+    sp2 = SchedulePeriod(JUL_16, OCT_15, JUL_16, OCT_15)
+    sch1 = Schedule([sp1], Frequency(months=1), RollConvention(RollConventionType.DAY_17))
+    sch2 = Schedule([sp2], Frequency(months=1), RollConvention(RollConventionType.DAY_17))
+    assert sch1.to_unadjusted() == sch2
 
 
 if __name__ == '__main__':
