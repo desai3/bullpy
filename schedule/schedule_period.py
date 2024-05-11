@@ -51,8 +51,13 @@ class SchedulePeriod(object):
         return self.end_dt.toordinal() - self.start_dt.toordinal()
 
     # TODO: figure out how to input datatype of Schedule without breaking circular import
-    # TODO: fix year_frac to take sched
     def year_fraction(self, dc: DayCount, sched):
+        if not isinstance(dc, DayCount):
+            raise ValueError('dc should be of type DayCount')
+        from .schedule import Schedule
+        if not isinstance(sched, Schedule):
+            raise ValueError('sched should be of type Schedule')
+
         # return dc.year_fraction(self.start_dt, self.end_dt, sched)
         return dc.year_fraction(self.start_dt, self.end_dt)
 
@@ -98,7 +103,7 @@ class SchedulePeriod(object):
             o.unadjusted_start_dt == self.unadjusted_start_dt and \
             o.unadjusted_end_dt == self.unadjusted_end_dt
 
-    def to_adjusted(self, adjuster: Callable[[datetime], datetime], merge_type: int):
+    def to_adjusted(self, adjuster: Callable[[datetime], datetime], merge_type: int = 0):
         res_start = adjuster(self.start_dt)
         res_end = adjuster(self.end_dt)
 
@@ -117,3 +122,14 @@ class SchedulePeriod(object):
         else:
             return SchedulePeriod(self.unadjusted_start_dt, self.unadjusted_end_dt)
 
+    def compare(self, other):
+        if self.unadjusted_start_dt < other.unadjusted_start_dt:
+            return -1
+        elif self.unadjusted_start_dt > other.unadjusted_start_dt:
+            return 1
+        elif self.unadjusted_end_dt < other.unadjusted_end_dt:
+            return -1
+        elif self.unadjusted_end_dt > other.unadjusted_end_dt:
+            return 1
+        else:
+            return 0
