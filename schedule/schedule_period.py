@@ -4,7 +4,6 @@ from .daycount import DayCount
 from .roll_convention import RollConvention
 from .stub_convention import StubConventionType
 from .bdayadj import BDayAdj
-from .periodic_schedule import PeriodicSchedule
 from .frequency import Frequency, between
 
 from datetime import datetime
@@ -80,8 +79,9 @@ class SchedulePeriod(object):
                      roll_conv: RollConvention,
                      stub_conv: StubConventionType,
                      bday_adj: BDayAdj,
-                     ) -> PeriodicSchedule:
+                     ):
 
+        from .periodic_schedule import PeriodicSchedule
         return PeriodicSchedule(self.unadjusted_start_dt, self.unadjusted_end_dt, freq, bday_adj, roll_conv, stub_conv)
 
     def get_start_date(self):
@@ -123,13 +123,13 @@ class SchedulePeriod(object):
             return SchedulePeriod(self.unadjusted_start_dt, self.unadjusted_end_dt)
 
     def compare(self, other):
-        if self.unadjusted_start_dt < other.unadjusted_start_dt:
+        if self.unadjusted_start_dt < other.unadjusted_start_date:
             return -1
-        elif self.unadjusted_start_dt > other.unadjusted_start_dt:
+        elif self.unadjusted_start_dt > other.unadjusted_start_date:
             return 1
-        elif self.unadjusted_end_dt < other.unadjusted_end_dt:
+        elif self.unadjusted_end_dt < other.unadjusted_end_date:
             return -1
-        elif self.unadjusted_end_dt > other.unadjusted_end_dt:
+        elif self.unadjusted_end_dt > other.unadjusted_end_date:
             return 1
         else:
             return 0

@@ -29,6 +29,25 @@ def rem_sat_sun(holidays) -> Set:
     return {x for x in holidays if x.weekday() not in (5, 6)}
 
 
+def add_sat_sun(holidays: Set[datetime], start: datetime, end: datetime) -> Set:
+    dt = start
+    while dt.weekday() not in (5, 6):
+        dt = plus_days(dt, 1)
+
+    while True:
+        if dt <= end:
+            holidays.add(dt)
+        else:
+            break
+
+        dt1 = plus_days(dt, 1)
+        if dt1 <= end:
+            holidays.add(dt)
+        else:
+            break
+        dt = plus_days(dt, 7)
+
+
 def bump_sun_to_mon(dt: datetime) -> datetime:
     if dt.weekday() == 6:
         return plus_days(dt, 1)
@@ -158,6 +177,7 @@ class HolidayCalendar(object):
     @staticmethod
     def gen_sat_sun():
         holidays = set()
+        add_sat_sun(holidays, datetime(1950, 1, 1), plus_days(datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -165,7 +185,7 @@ class HolidayCalendar(object):
         holidays = set()
         for y in range(1950, 2100):
             us_common(holidays, y, False, True, 1986)
-        holidays = rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -180,7 +200,7 @@ class HolidayCalendar(object):
         # George H W Bush Death
         holidays.add(datetime.datetime(y, 12, 5))
 
-        holidays = rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -188,7 +208,7 @@ class HolidayCalendar(object):
         holidays = set()
         for y in range(1950, 2100):
             us_common(holidays, y, False, True, 1986)
-        holidays = rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -269,7 +289,7 @@ class HolidayCalendar(object):
         holidays.add(datetime.datetime(2007, 1, 2))  # Death of Gerald Ford
         holidays.add(datetime.datetime(2012, 10, 30))  # Hurricane Sandy
         holidays.add(datetime.datetime(2018, 12, 5))  # Death of George H.W.Bush
-        holidays = rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -330,7 +350,7 @@ class HolidayCalendar(object):
         holidays.add(datetime.datetime(2011, 4, 29))  # royal wedding
         holidays.add(datetime.datetime(2023, 5, 8))  # king's coronation
 
-        rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -349,7 +369,7 @@ class HolidayCalendar(object):
                 holidays.add(datetime.datetime(y, 12, 25))
             if y == 1999 or y == 2001:
                 holidays.add(datetime.datetime(y, 12, 31))
-        holidays = rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -381,7 +401,7 @@ class HolidayCalendar(object):
             holidays.add(christmas_bumped_sat_sun(y))
             # boxing(public)
             holidays.add(boxingday_bumped_sat_sun(y))
-        holidays = rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -407,7 +427,7 @@ class HolidayCalendar(object):
             holidays.add(day_of_week_in_month(y, 10, 0, 2))
             # christmas
             holidays.add(christmas_bumped_sat_sun(y))
-        holidays = rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod
@@ -434,7 +454,7 @@ class HolidayCalendar(object):
             holidays.add(christmas_bumped_sat_sun(y))
             # boxing
             holidays.add(boxingday_bumped_sat_sun(y))
-        holidays = rem_sat_sun(holidays)
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     def __init__(self, name: HolidayCalendarType):
@@ -442,7 +462,7 @@ class HolidayCalendar(object):
         self._holidays = getattr(self, f'gen_{self._type.lower()}')()
 
     def is_holiday(self, dt: datetime) -> bool:
-        return dt.weekday() in (5, 6) or dt in self._holidays
+        return dt in self._holidays
 
     def is_businessday(self, dt: datetime) -> bool:
         return not self.is_holiday(dt)
@@ -475,14 +495,17 @@ class HolidayCalendar(object):
                 adjusted = self.previous(adjusted)
         return adjusted
 
-
-
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self._type == other._type
 
 
 class CustomeHolidayCalendar(HolidayCalendar):
     def __init__(self, name: str, holidays: Set):
         self._type = name
         self._holidays = holidays
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self._holidays == other._holidays
 
 
 class CombinedHolidayCalendar(HolidayCalendar):

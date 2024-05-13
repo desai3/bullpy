@@ -96,7 +96,7 @@ def test_bdayadjust():
             [BDayAdjType.NEAREST, datetime(2014, 7, 14), datetime(2014, 7, 14)]]
 
     for typ, dt, expected in data:
-        assert BDayAdj(typ).adjust(dt, CustomeHolidayCalendar('SAT_SUN', set())) == expected
+        assert BDayAdj(typ, CustomeHolidayCalendar('SAT_SUN', set())).adjust(dt) == expected
 
 
 if __name__ == '__main__':
