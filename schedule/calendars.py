@@ -150,9 +150,15 @@ class HolidayCalendarType(enum.Enum):
     CATO = enum.auto()
     CAMO = enum.auto()
     AUSY = enum.auto()
+    SAT_SUN = enum.auto()
 
 
 class HolidayCalendar(object):
+
+    @staticmethod
+    def gen_sat_sun():
+        holidays = set()
+        return holidays
 
     @staticmethod
     def gen_usny():
