@@ -61,8 +61,8 @@ def test_local_date_eom_false():
         unadjusted_end_date=SEP_17,
         freq=Frequency(months=1),
         bday_adj=BDA,
-        stub_conv=StubConvention(StubConventionType.SHORT_INITIAL),
-        roll_eom=False)
+        stub_conv=StubConvention(StubConventionType.SHORT_INITIAL))
+        # roll_eom=False)
     assert ps.get_start_date() == JUN_04
     assert ps.get_end_date() == SEP_17
     assert ps.get_frequency() == Frequency(months=1)
@@ -88,7 +88,7 @@ def test_local_date_eom_true():
         freq=Frequency(months=1),
         bday_adj=BDA,
         stub_conv=StubConvention(StubConventionType.SHORT_FINAL),
-        roll_eom=True)
+        roll_conv=RollConvention(RollConventionType.EOM))
     assert ps.get_start_date() == JUN_04
     assert ps.get_end_date() == SEP_17
     assert ps.get_frequency() == Frequency(months=1)
@@ -107,27 +107,56 @@ def test_local_date_eom_true():
     assert ps.calculated_end_date() == (SEP_17, BDA)
 
 
-def test_local_date_eom_null():
+def test_null():
     with pytest.raises(ValueError):
         PeriodicSchedule(unadjusted_start_date=None, unadjusted_end_date=SEP_17,
                          freq=Frequency(months=1), bday_adj=BDA,
-                         stub_conv=StubConvention(StubConventionType.SHORT_INITIAL), roll_eom=False)
+                         stub_conv=StubConvention(StubConventionType.SHORT_INITIAL))
     with pytest.raises(ValueError):
         PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=None,
                          freq=Frequency(months=1), bday_adj=BDA,
-                         stub_conv=StubConvention(StubConventionType.SHORT_FINAL), roll_eom=False)
+                         stub_conv=StubConvention(StubConventionType.SHORT_FINAL))
     with pytest.raises(ValueError):
         PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
                          freq=None, bday_adj=BDA,
-                         stub_conv=StubConvention(StubConventionType.SHORT_FINAL), roll_eom=False)
-    # with pytest.raises(ValueError):
-    #     PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
-    #                      freq=Frequency(months=1), bday_adj=None,
-    #                      stub_conv=StubConvention(StubConventionType.SHORT_FINAL), roll_eom=False)
+                         stub_conv=StubConvention(StubConventionType.SHORT_FINAL))
     with pytest.raises(ValueError):
         PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
-                         freq=Frequency(months=1), bday_adj=BDA,
-                         stub_conv=None, roll_eom=False)
+                         freq=Frequency(months=1), bday_adj=None,
+                         stub_conv=StubConvention(StubConventionType.SHORT_FINAL))
+    # with pytest.raises(ValueError):
+    #     PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+    #                      freq=Frequency(months=1), bday_adj=BDA,
+    #                      stub_conv=None)
+
+
+def test_local_date_roll():
+    ps = PeriodicSchedule(
+        unadjusted_start_date=JUN_04,
+        unadjusted_end_date=SEP_17,
+        freq=Frequency(months=1),
+        bday_adj=BDA,
+        stub_conv=StubConvention(StubConventionType.SHORT_INITIAL),
+        roll_conv=RollConvention(RollConventionType.DAY_17)
+    )
+    assert ps.get_start_date() == JUN_04
+    assert ps.get_end_date() == SEP_17
+    assert ps.get_frequency() == Frequency(months=1)
+    assert ps.get_bday_adj() == BDA
+    assert ps.get_start_date_bday_adj() is None
+    assert ps.get_end_date_bday_adj() is None
+    assert ps.get_stub_convention() == StubConvention(StubConventionType.SHORT_INITIAL)
+    assert ps.get_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert ps.get_first_regular_start_date() is None
+    assert ps.get_last_regular_end_date() is None
+    assert ps.get_override_start_date() is None
+    assert ps.calculated_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert ps.calculated_first_regular_start_date() == JUN_04
+    assert ps.calculated_last_regular_end_date() == SEP_17
+    assert ps.calculated_start_date() == (JUN_04, BDA)
+    assert ps.calculated_end_date() == (SEP_17, BDA)
+
+
 
 
 def test_first_payment_date_before_effective_date():

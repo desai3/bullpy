@@ -28,7 +28,7 @@ class PeriodicSchedule(object):
                  freq: Frequency,
                  bday_adj: BDayAdj,
                  stub_conv: StubConvention | None = None,
-                 roll_eom: bool = False,
+                 roll_conv: RollConvention | None = None,
                  start_date: datetime | None = None,
                  end_date: datetime | None = None,
                  start_date_bday_adj: BDayAdj | None = None,
@@ -53,8 +53,8 @@ class PeriodicSchedule(object):
         self.freq = freq
         self.bday_adj = bday_adj
         self.stub_conv = stub_conv
-        self.eom = roll_eom
-        self.roll_conv = RollConvention(RollConventionType.EOM) if self.eom else None
+        # self.roll_conv = RollConvention(RollConventionType.EOM) if self.eom else None
+        self.roll_conv = roll_conv
 
         self.start_date = self.unadjusted_start_date if start_date is None else start_date
         self.end_date = self.unadjusted_end_date if end_date is None else end_date
