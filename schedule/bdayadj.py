@@ -22,36 +22,36 @@ class BDayAdj(object):
     def __eq__(self, other):
         return self.adj_type == other.adj_type and self.cal == other.cal
 
-    def adjust(self, dt: datetime) -> datetime:
-        return getattr(self, f'adjust_{self.adj_type.name.lower()}')(dt)
+    def adjust(self, dt: datetime, cal=HolidayCalendar | None) -> datetime:
+        return getattr(self, f'adjust_{self.adj_type.name.lower()}')(dt, cal)
 
     @staticmethod
-    def adjust_no_adjust(dt: datetime) -> datetime:
+    def adjust_no_adjust(dt: datetime, cal=HolidayCalendar | None) -> datetime:
         assert isinstance(dt, datetime.datetime)
         return dt
 
-    def adjust_following(self, dt: datetime) -> datetime:
+    def adjust_following(self, dt: datetime, cal=HolidayCalendar | None) -> datetime:
         return self.cal.next_or_same(dt)
 
-    def adjust_modified_following(self, dt: datetime) -> datetime:
+    def adjust_modified_following(self, dt: datetime, cal=HolidayCalendar | None) -> datetime:
         return self.cal.next_or_same_last_in_month(dt)
 
-    def adjust_modified_following_bi_monthly(self, dt: datetime) -> datetime:
+    def adjust_modified_following_bi_monthly(self, dt: datetime, cal=HolidayCalendar | None) -> datetime:
         adjusted = self.cal.next_or_same(dt)
         if adjusted.month != dt.month or (adjusted.day > 15 and dt.day <= 15):
             adjusted = self.cal.previous(adjusted)
         return adjusted
 
-    def adjust_preceding(self, dt: datetime) -> datetime:
+    def adjust_preceding(self, dt: datetime, cal=HolidayCalendar | None) -> datetime:
         return self.cal.previous_or_same(dt)
 
-    def adjust_modified_preceding(self, dt: datetime) -> datetime:
+    def adjust_modified_preceding(self, dt: datetime, cal=HolidayCalendar | None) -> datetime:
         adjusted = self.cal.previous_or_same(dt)
         if adjusted.month != dt.month:
             adjusted = self.cal.next(dt)
         return adjusted
 
-    def adjust_nearest(self, dt: datetime) -> datetime:
+    def adjust_nearest(self, dt: datetime, cal=HolidayCalendar | None) -> datetime:
         if self.cal.is_businessday(dt):
             return dt
         if dt.weekday() == 6 or dt.weekday() == 0:

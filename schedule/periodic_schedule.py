@@ -1,6 +1,6 @@
 from datetime import datetime
 import calendar
-from typing import List
+from typing import List, Tuple
 from collections import deque
 
 from .calendars import HolidayCalendar
@@ -27,33 +27,33 @@ class PeriodicSchedule(object):
                  unadjusted_end_date: datetime,
                  freq: Frequency,
                  bday_adj: BDayAdj,
-                 stub_conv: StubConvention,
-                 eom: bool,
+                 stub_conv: StubConvention | None = None,
+                 roll_eom: bool = False,
                  start_date: datetime | None = None,
                  end_date: datetime | None = None,
                  start_date_bday_adj: BDayAdj | None = None,
                  end_date_bday_adj: BDayAdj | None = None,
                  first_regular_start_date: datetime | None = None,
                  last_regular_end_date: datetime | None = None,
-                 override_start_date: datetime | None = None):
+                 override_start_date: Tuple[datetime, BDayAdj] | None = None):
 
-        if isinstance(unadjusted_start_date, datetime):
+        if not isinstance(unadjusted_start_date, datetime):
             raise ValueError("unadjusted_start_date should be of type datetime")
-        if isinstance(unadjusted_end_date, datetime):
+        if not isinstance(unadjusted_end_date, datetime):
             raise ValueError("unadjusted_end_date should be of type datetime")
-        if isinstance(freq, Frequency):
+        if not isinstance(freq, Frequency):
             raise ValueError("freq should be of type Frequency")
-        if isinstance(bday_adj, BDayAdj):
+        if not isinstance(bday_adj, BDayAdj):
             raise ValueError("bday_adj should be of type BDayAdj")
-        if isinstance(stub_conv, StubConvention):
-            raise ValueError("stub_conv should be of type StunConvention")
+        # if not isinstance(stub_conv, StubConvention):
+        #     raise ValueError("stub_conv should be of type StunConvention")
 
         self.unadjusted_start_date = unadjusted_start_date
         self.unadjusted_end_date = unadjusted_end_date
         self.freq = freq
         self.bday_adj = bday_adj
         self.stub_conv = stub_conv
-        self.eom = eom
+        self.eom = roll_eom
         self.roll_conv = RollConvention(RollConventionType.EOM) if self.eom else None
 
         self.start_date = self.unadjusted_start_date if start_date is None else start_date
@@ -99,16 +99,16 @@ class PeriodicSchedule(object):
                 self.start_dt_bday_adj == BDayAdj(BDayAdjType.NONE) or
                 self.roll_conv == RollConvention(RollConventionType.EOM)
         ):
-            return self._calculated_unadjusted_date_from_adjusted(self.start_dt, self.roll_conv, self.bday_adj, cal)
-        return self.start_dt
+            return self._calculated_unadjusted_date_from_adjusted(self.start_date, self.roll_conv, self.bday_adj, cal)
+        return self.start_date
 
     def _calculated_unadjusted_end_date(self, cal: HolidayCalendar | None = None) -> datetime:
         if cal is not None and self.roll_conv is not None:
-            return self._calculated_unadjusted_date_from_adjusted(self.end_dt,
+            return self._calculated_unadjusted_date_from_adjusted(self.end_date,
                                                                   self.roll_conv,
                                                                   self._calculated_end_date_bday_adj(),
                                                                   cal)
-        return self.end_dt
+        return self.end_date
 
     def _calculated_end_date_bday_adj(self) -> BDayAdj:
         return first_not_null(self.end_date_bday_adj, self.bday_adj)
@@ -118,13 +118,13 @@ class PeriodicSchedule(object):
 
     def _calculated_first_regular_start_date(self, unadj_start: datetime,
                                              cal: HolidayCalendar | None = None) -> datetime:
-        if self.first_reg_start_dt is None:
+        if self.first_regular_start_date is None:
             return unadj_start
         if cal is not None and self.roll_conv is not None:
             return self._calculated_unadjusted_date_from_adjusted(
-                self.first_reg_start_dt, self.roll_conv, self.bday_adj, cal
+                self.first_regular_start_date, self.roll_conv, self.bday_adj, cal
             )
-        return self.first_reg_start_dt
+        return self.first_regular_start_date
 
     def calculated_first_regular_start_date(self):
         return first_not_null(self.first_regular_start_date, self.start_date)
@@ -154,7 +154,7 @@ class PeriodicSchedule(object):
         return first_not_null(self.roll_conv, RollConvention(RollConventionType.NONE))
 
     def _calculated_last_regular_end_date(self, unadj_end: datetime, cal: HolidayCalendar | None = None) -> datetime:
-        if self.last_regular_end_dt is None:
+        if self.last_regular_end_date is None:
             return unadj_end
 
         if cal is not None and self.roll_conv is not None:
@@ -165,7 +165,7 @@ class PeriodicSchedule(object):
     def calculated_last_regular_end_date(self):
         return first_not_null(self.last_regular_end_date, self.end_date)
 
-    def calculated_start_date(self):
+    def calculated_start_date(self) -> Tuple[datetime, BDayAdj]:
         if self.override_start_date is not None:
             return self.override_start_date
         return self.start_date, self._calculated_start_date_bday_adj()
@@ -264,9 +264,9 @@ class PeriodicSchedule(object):
                                    reg_end: datetime,
                                    end: datetime,
                                    roll_conv: RollConvention):
-        override_start = self.override_start_date.get_unadjusted() if self.override_start_date is not None else start
-        explicit_init_stub = not start == reg_start
-        explicit_final_stub = not end != reg_end
+        override_start = self.override_start_date[0] if self.override_start_date is not None else start
+        explicit_init_stub = start != reg_start
+        explicit_final_stub = end != reg_end
         if reg_start == end or reg_end == start:
             return [override_start, end]
         if self.freq.is_term():
@@ -275,7 +275,7 @@ class PeriodicSchedule(object):
             return [override_start, end]
 
         stub_conv = self.generate_implicit_stub_conv(explicit_init_stub, explicit_final_stub, reg_start, reg_end)
-        if self.override_Start_date is not None and \
+        if self.override_start_date is not None and \
                 self.roll_conv is not None and \
                 self.first_reg_start_date is None and \
                 not roll_conv.matches(reg_start) and \
@@ -308,7 +308,7 @@ class PeriodicSchedule(object):
                                     reg_start: datetime,
                                     reg_end: datetime) -> StubConvention:
         if self.stub_conv is not None:
-            return self.stub_conv.to_implicit(self, explicit_init_stub, explicit_final_stub)
+            return self.stub_conv.to_implicit(explicit_init_stub, explicit_final_stub)
 
         if self.roll_conv is not None and not explicit_init_stub and not explicit_final_stub:
             if self.roll_conv.get_day_of_month() == reg_end.month:
@@ -353,8 +353,8 @@ class PeriodicSchedule(object):
     def create_schedule(self, cal: HolidayCalendar | None = None, combine_periods_if_necessary=False) -> Schedule:
         unadj_start = self._calculated_unadjusted_start_date(cal)
         unadj_end = self._calculated_unadjusted_end_date(cal)
-        reg_start = self.calculated_first_regular_start_date(unadj_start, cal)
-        reg_end = self.calculated_last_regular_end_date(unadj_end, cal)
+        reg_start = self._calculated_first_regular_start_date(unadj_start, cal)
+        reg_end = self._calculated_last_regular_end_date(unadj_end, cal)
         roll_conv = self.calculated_roll_convention(reg_start, reg_end)
 
         unadj = self._generate_unadjusted_dates(unadj_start, reg_start, reg_end, unadj_end, roll_conv)

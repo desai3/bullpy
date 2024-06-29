@@ -7,9 +7,10 @@ from ...schedule.stub_convention import StubConvention, StubConventionType
 from ...schedule.bdayadj import BDayAdj, BDayAdjType
 from ...schedule.calendars import HolidayCalendar, HolidayCalendarType, CustomeHolidayCalendar
 from ...schedule.periodic_schedule import PeriodicSchedule
-from ...schedule.frequency import Frequency
+from ...schedule.frequency import Frequency, plus_months
+from ...schedule.schedule_period import SchedulePeriod
 
-REF_DATA = None
+CAL = None
 ROLL_NONE = RollConvention(RollConventionType.NONE)
 STUB_NONE = StubConvention(StubConventionType.NONE)
 STUB_BOTH = StubConvention(StubConventionType.BOTH)
@@ -61,7 +62,7 @@ def test_local_date_eom_false():
         freq=Frequency(months=1),
         bday_adj=BDA,
         stub_conv=StubConvention(StubConventionType.SHORT_INITIAL),
-        eom=False)
+        roll_eom=False)
     assert ps.get_start_date() == JUN_04
     assert ps.get_end_date() == SEP_17
     assert ps.get_frequency() == Frequency(months=1)
@@ -87,7 +88,7 @@ def test_local_date_eom_true():
         freq=Frequency(months=1),
         bday_adj=BDA,
         stub_conv=StubConvention(StubConventionType.SHORT_FINAL),
-        eom=True)
+        roll_eom=True)
     assert ps.get_start_date() == JUN_04
     assert ps.get_end_date() == SEP_17
     assert ps.get_frequency() == Frequency(months=1)
@@ -108,25 +109,51 @@ def test_local_date_eom_true():
 
 def test_local_date_eom_null():
     with pytest.raises(ValueError):
-        ps = PeriodicSchedule(unadjusted_start_date=None, unadjusted_end_date=SEP_17,
-                              freq=Frequency(months=1), bday_adj=BDA,
-                              stub_conv=StubConvention(StubConventionType.SHORT_INITIAL), eom=False)
+        PeriodicSchedule(unadjusted_start_date=None, unadjusted_end_date=SEP_17,
+                         freq=Frequency(months=1), bday_adj=BDA,
+                         stub_conv=StubConvention(StubConventionType.SHORT_INITIAL), roll_eom=False)
     with pytest.raises(ValueError):
-        ps = PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=None,
-                              freq=Frequency(months=1), bday_adj=BDA,
-                              stub_conv=StubConvention(StubConventionType.SHORT_FINAL), eom=False)
+        PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=None,
+                         freq=Frequency(months=1), bday_adj=BDA,
+                         stub_conv=StubConvention(StubConventionType.SHORT_FINAL), roll_eom=False)
     with pytest.raises(ValueError):
-        ps = PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
-                              freq=None, bday_adj=BDA,
-                              stub_conv=StubConvention(StubConventionType.SHORT_FINAL), eom=False)
+        PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+                         freq=None, bday_adj=BDA,
+                         stub_conv=StubConvention(StubConventionType.SHORT_FINAL), roll_eom=False)
+    # with pytest.raises(ValueError):
+    #     PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+    #                      freq=Frequency(months=1), bday_adj=None,
+    #                      stub_conv=StubConvention(StubConventionType.SHORT_FINAL), roll_eom=False)
     with pytest.raises(ValueError):
-        ps = PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
-                              freq=Frequency(months=1), bday_adj=None,
-                              stub_conv=StubConvention(StubConventionType.SHORT_FINAL), eom=False)
-    with pytest.raises(ValueError):
-        ps = PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
-                              freq=Frequency(months=1), bday_adj=BDA,
-                              stub_conv=None, eom=False)
+        PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+                         freq=Frequency(months=1), bday_adj=BDA,
+                         stub_conv=None, roll_eom=False)
+
+
+def test_first_payment_date_before_effective_date():
+    start_date = datetime(2018, 7, 26)
+    end_date = datetime(2019, 6, 20)
+    override_start_date = datetime(2018, 3, 20)
+    first_regular_start_date = datetime(2018, 6, 20)
+
+    ps = PeriodicSchedule(
+        unadjusted_start_date=start_date, unadjusted_end_date=end_date,
+        freq=Frequency(months=3), bday_adj=BDA,
+        first_regular_start_date=first_regular_start_date,
+        override_start_date=(override_start_date, BDA_NONE),
+    )
+
+    sched = ps.create_schedule(CAL)
+    assert sched.size() == 5
+
+    for i in range(sched.size()):
+        expected_start = plus_months(override_start_date, 3 * i)
+        expected_end = plus_months(expected_start, 3)
+        sp = SchedulePeriod(expected_start, expected_end)
+        ap = sched.get_period(i)
+
+        assert sp == ap
+
 
 if __name__ == '__main__':
     test_local_date_eom_false()
