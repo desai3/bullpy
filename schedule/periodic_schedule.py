@@ -36,6 +36,18 @@ class PeriodicSchedule(object):
                  first_regular_start_date: datetime | None = None,
                  last_regular_end_date: datetime | None = None,
                  override_start_date: datetime | None = None):
+
+        if isinstance(unadjusted_start_date, datetime):
+            raise ValueError("unadjusted_start_date should be of type datetime")
+        if isinstance(unadjusted_end_date, datetime):
+            raise ValueError("unadjusted_end_date should be of type datetime")
+        if isinstance(freq, Frequency):
+            raise ValueError("freq should be of type Frequency")
+        if isinstance(bday_adj, BDayAdj):
+            raise ValueError("bday_adj should be of type BDayAdj")
+        if isinstance(stub_conv, StubConvention):
+            raise ValueError("stub_conv should be of type StunConvention")
+
         self.unadjusted_start_date = unadjusted_start_date
         self.unadjusted_end_date = unadjusted_end_date
         self.freq = freq

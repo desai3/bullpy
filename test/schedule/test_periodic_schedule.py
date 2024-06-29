@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import pytest
+
 from ...schedule.roll_convention import RollConvention, RollConventionType
 from ...schedule.stub_convention import StubConvention, StubConventionType
 from ...schedule.bdayadj import BDayAdj, BDayAdjType
@@ -103,6 +105,28 @@ def test_local_date_eom_true():
     assert ps.calculated_start_date() == (JUN_04, BDA)
     assert ps.calculated_end_date() == (SEP_17, BDA)
 
+
+def test_local_date_eom_null():
+    with pytest.raises(ValueError):
+        ps = PeriodicSchedule(unadjusted_start_date=None, unadjusted_end_date=SEP_17,
+                              freq=Frequency(months=1), bday_adj=BDA,
+                              stub_conv=StubConvention(StubConventionType.SHORT_INITIAL), eom=False)
+    with pytest.raises(ValueError):
+        ps = PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=None,
+                              freq=Frequency(months=1), bday_adj=BDA,
+                              stub_conv=StubConvention(StubConventionType.SHORT_FINAL), eom=False)
+    with pytest.raises(ValueError):
+        ps = PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+                              freq=None, bday_adj=BDA,
+                              stub_conv=StubConvention(StubConventionType.SHORT_FINAL), eom=False)
+    with pytest.raises(ValueError):
+        ps = PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+                              freq=Frequency(months=1), bday_adj=None,
+                              stub_conv=StubConvention(StubConventionType.SHORT_FINAL), eom=False)
+    with pytest.raises(ValueError):
+        ps = PeriodicSchedule(unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+                              freq=Frequency(months=1), bday_adj=BDA,
+                              stub_conv=None, eom=False)
 
 if __name__ == '__main__':
     test_local_date_eom_false()
