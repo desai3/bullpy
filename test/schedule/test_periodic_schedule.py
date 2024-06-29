@@ -72,6 +72,36 @@ def test_local_date_eom_false():
     assert ps.get_last_regular_end_date() is None
     assert ps.get_override_start_date() is None
     assert ps.calculated_roll_convention() == RollConvention(RollConventionType.DAY_17)
+    assert ps.calculated_first_regular_start_date() == JUN_04
+    assert ps.calculated_last_regular_end_date() == SEP_17
+    assert ps.calculated_start_date() == (JUN_04, BDA)
+    assert ps.calculated_end_date() == (SEP_17, BDA)
+
+
+def test_local_date_eom_true():
+    ps = PeriodicSchedule(
+        unadjusted_start_date=JUN_04,
+        unadjusted_end_date=SEP_17,
+        freq=Frequency(months=1),
+        bday_adj=BDA,
+        stub_conv=StubConvention(StubConventionType.SHORT_FINAL),
+        eom=True)
+    assert ps.get_start_date() == JUN_04
+    assert ps.get_end_date() == SEP_17
+    assert ps.get_frequency() == Frequency(months=1)
+    assert ps.get_bday_adj() == BDA
+    assert ps.get_start_date_bday_adj() is None
+    assert ps.get_end_date_bday_adj() is None
+    assert ps.get_stub_convention() == StubConvention(StubConventionType.SHORT_FINAL)
+    assert ps.get_roll_convention() == RollConvention(RollConventionType.EOM)
+    assert ps.get_first_regular_start_date() is None
+    assert ps.get_last_regular_end_date() is None
+    assert ps.get_override_start_date() is None
+    assert ps.calculated_roll_convention() == RollConvention(RollConventionType.DAY_4)
+    assert ps.calculated_first_regular_start_date() == JUN_04
+    assert ps.calculated_last_regular_end_date() == SEP_17
+    assert ps.calculated_start_date() == (JUN_04, BDA)
+    assert ps.calculated_end_date() == (SEP_17, BDA)
 
 
 if __name__ == '__main__':

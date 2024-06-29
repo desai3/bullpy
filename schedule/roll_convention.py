@@ -65,7 +65,7 @@ class RollConvention(object):
             getattr(self, f'setup_{self.name.name.lower()}')()
 
     def __eq__(self, other):
-        return self.name == other.name
+        return isinstance(other, type(self)) and self.name == other.name
 
     def matches(self, dt: datetime) -> bool:
         if self.name.name.startswith('DAY_') and self.name != RollConventionType.DAY_31:

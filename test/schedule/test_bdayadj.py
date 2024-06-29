@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from ...schedule.bdayadj import BDayAdj, BDayAdjType
-from ...schedule.calendars import CustomeHolidayCalendar
+from ...schedule.calendars import HolidayCalendar, HolidayCalendarType
 
 
 def test_bdayadjust():
@@ -93,10 +93,12 @@ def test_bdayadjust():
             [BDayAdjType.NEAREST, datetime(2014, 7, 11), datetime(2014, 7, 11)],
             [BDayAdjType.NEAREST, datetime(2014, 7, 12), datetime(2014, 7, 11)],
             [BDayAdjType.NEAREST, datetime(2014, 7, 13), datetime(2014, 7, 14)],
-            [BDayAdjType.NEAREST, datetime(2014, 7, 14), datetime(2014, 7, 14)]]
+            [BDayAdjType.NEAREST, datetime(2014, 7, 14), datetime(2014, 7, 14)]
+    ]
 
     for typ, dt, expected in data:
-        assert BDayAdj(typ, CustomeHolidayCalendar('SAT_SUN', set())).adjust(dt) == expected
+        ans = BDayAdj(typ, HolidayCalendar(HolidayCalendarType.SAT_SUN)).adjust(dt)
+        assert ans == expected
 
 
 if __name__ == '__main__':

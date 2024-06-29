@@ -123,13 +123,13 @@ class SchedulePeriod(object):
             return SchedulePeriod(self.unadjusted_start_dt, self.unadjusted_end_dt)
 
     def compare(self, other):
-        if self.unadjusted_start_dt < other.unadjusted_start_date:
+        if self.unadjusted_start_dt < other.unadjusted_start_dt:
             return -1
-        elif self.unadjusted_start_dt > other.unadjusted_start_date:
+        elif self.unadjusted_start_dt > other.unadjusted_start_dt:
             return 1
-        elif self.unadjusted_end_dt < other.unadjusted_end_date:
+        elif self.unadjusted_end_dt < other.unadjusted_end_dt:
             return -1
-        elif self.unadjusted_end_dt > other.unadjusted_end_date:
+        elif self.unadjusted_end_dt > other.unadjusted_end_dt:
             return 1
         else:
             return 0

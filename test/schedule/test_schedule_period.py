@@ -179,4 +179,4 @@ def test_equal():
 
 
 if __name__ == '__main__':
-    test_is_regular()
+    test_compare()

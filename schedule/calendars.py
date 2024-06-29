@@ -34,16 +34,17 @@ def add_sat_sun(holidays: Set[datetime], start: datetime, end: datetime) -> Set:
     while dt.weekday() not in (5, 6):
         dt = plus_days(dt, 1)
 
+    offset = -1 if dt.weekday() == 6 else 1
     while True:
-        if dt <= end:
+        if start <= dt <= end:
             holidays.add(dt)
-        else:
+        elif dt > end:
             break
 
-        dt1 = plus_days(dt, 1)
-        if dt1 <= end:
-            holidays.add(dt)
-        else:
+        dt1 = plus_days(dt, offset)
+        if start <= dt1 <= end:
+            holidays.add(dt1)
+        elif dt > end:
             break
         dt = plus_days(dt, 7)
 
@@ -177,7 +178,7 @@ class HolidayCalendar(object):
     @staticmethod
     def gen_sat_sun():
         holidays = set()
-        add_sat_sun(holidays, datetime(1950, 1, 1), plus_days(datetime(2100, 12, 31), -1))
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
 
     @staticmethod

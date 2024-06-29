@@ -115,13 +115,17 @@ class PeriodicSchedule(object):
         return self.first_reg_start_dt
 
     def calculated_first_regular_start_date(self):
-        return first_not_null(self.first_reg_start_date, self.end_date)
+        return first_not_null(self.first_regular_start_date, self.start_date)
 
     def calculated_roll_convention(self,
                                    calced_first_reg_start_dt: datetime | None = None,
                                    calced_last_reg_end_dt: datetime | None = None):
         assert (calced_first_reg_start_dt is None and calced_last_reg_end_dt is None) or (
                 calced_first_reg_start_dt is not None and calced_last_reg_end_dt is not None)
+
+        if calced_first_reg_start_dt is None and calced_last_reg_end_dt is None:
+            calced_first_reg_start_dt = self.calculated_first_regular_start_date()
+            calced_last_reg_end_dt = self.calculated_last_regular_end_date()
 
         stub_conv = first_not_null(self.stub_conv, StubConvention(StubConventionType.NONE))
 
@@ -147,7 +151,7 @@ class PeriodicSchedule(object):
         return self.last_regular_end_date
 
     def calculated_last_regular_end_date(self):
-        return first_not_null(self.last_regulard_end_date, self.end_date)
+        return first_not_null(self.last_regular_end_date, self.end_date)
 
     def calculated_start_date(self):
         if self.override_start_date is not None:
