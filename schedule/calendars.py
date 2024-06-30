@@ -170,6 +170,7 @@ class HolidayCalendarType(enum.Enum):
     CATO = enum.auto()
     CAMO = enum.auto()
     AUSY = enum.auto()
+    JPTO = enum.auto()
     SAT_SUN = enum.auto()
 
 
