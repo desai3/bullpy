@@ -90,8 +90,8 @@ class PeriodicSchedule(object):
             else:
                 if not self.start_date <= self.last_regular_end_date:
                     raise ValueError("start_date should be <= last_regular_end_date")
-        if not self.last_regular_end_date <= self.end_date:
-            raise ValueError("last_regular_end_date should be <= end_date")
+            if not self.last_regular_end_date <= self.end_date:
+                raise ValueError("last_regular_end_date should be <= end_date")
 
     def _estimate_number_periods(self,
                                  start: datetime,
