@@ -64,6 +64,35 @@ class PeriodicSchedule(object):
         self.last_regular_end_date = last_regular_end_date
         self.override_start_date = override_start_date
 
+        self._validate()
+
+    def _validate(self):
+        if not self.start_date < self.end_date:
+            raise ValueError("start_date should be < end_date")
+        if self.override_start_date is not None and not self.override_start_date[0] < self.end_date:
+            raise ValueError("override_start_date should be < end_date")
+        if self.first_regular_start_date is not None:
+            if not self.first_regular_start_date <= self.end_date:
+                raise ValueError("first_regular_start_date should be <= end_date")
+            if self.last_regular_end_date is not None and \
+                    not self.first_regular_start_date <= self.last_regular_end_date:
+                raise ValueError("first_regular_start_date should be <= end_date")
+            if self.override_start_date is not None:
+                if not self.override_start_date[0] <= self.first_regular_start_date:
+                    raise ValueError("override_start_date should be <= first_regular_start_date")
+            else:
+                if not self.start_date <= self.first_regular_start_date:
+                    raise ValueError("start_date should be <= first_regular_start_date")
+        if self.last_regular_end_date is not None:
+            if self.override_start_date is not None:
+                if not self.override_start_date[0] <= self.last_regular_end_date:
+                    raise ValueError("override_start_date should be <= last_regular_end_date")
+            else:
+                if not self.start_date <= self.last_regular_end_date:
+                    raise ValueError("start_date should be <= last_regular_end_date")
+        if not self.last_regular_end_date <= self.end_date:
+            raise ValueError("last_regular_end_date should be <= end_date")
+
     def _estimate_number_periods(self,
                                  start: datetime,
                                  end: datetime,

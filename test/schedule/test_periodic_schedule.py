@@ -184,5 +184,55 @@ def test_first_payment_date_before_effective_date():
         assert sp == ap
 
 
+def test_invalid_date_order():
+    with pytest.raises(ValueError):
+        PeriodicSchedule(
+            unadjusted_start_date=SEP_17, unadjusted_end_date=SEP_17,
+            freq=Frequency(months=1), bday_adj=BDA,
+            first_regular_start_date=None, last_regular_end_date=None
+        )
+    with pytest.raises(ValueError):
+        PeriodicSchedule(
+            unadjusted_start_date=SEP_17, unadjusted_end_date=JUN_04,
+            freq=Frequency(months=1), bday_adj=BDA,
+            first_regular_start_date=None, last_regular_end_date=None
+        )
+    with pytest.raises(ValueError):
+        PeriodicSchedule(
+            unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+            freq=Frequency(months=1), bday_adj=BDA,
+            first_regular_start_date=JUN_03, last_regular_end_date=None
+        )
+    with pytest.raises(ValueError):
+        PeriodicSchedule(
+            unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+            freq=Frequency(months=1), bday_adj=BDA,
+            first_regular_start_date=None, last_regular_end_date=SEP_18
+        )
+    PeriodicSchedule(
+        unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_05,
+        freq=Frequency(months=1), bday_adj=BDA,
+        first_regular_start_date=SEP_05, last_regular_end_date=SEP_05
+    )
+    with pytest.raises(ValueError):
+        PeriodicSchedule(
+            unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+            freq=Frequency(months=1), bday_adj=BDA,
+            first_regular_start_date=SEP_05, last_regular_end_date=SEP_04
+        )
+    with pytest.raises(ValueError):
+        PeriodicSchedule(
+            unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+            freq=Frequency(months=1), bday_adj=BDA,
+            first_regular_start_date=SEP_05, last_regular_end_date=SEP_04
+        )
+    with pytest.raises(ValueError):
+        PeriodicSchedule(
+            unadjusted_start_date=JUN_04, unadjusted_end_date=SEP_17,
+            freq=Frequency(months=1), bday_adj=BDA,
+            first_regular_start_date=JUL_17, last_regular_end_date=None,
+            override_start_date=(AUG_04, BDA_NONE)
+        )
+
 if __name__ == '__main__':
     test_local_date_eom_false()
