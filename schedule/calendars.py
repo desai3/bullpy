@@ -6,6 +6,12 @@ import enum
 from .frequency import plus_days
 
 
+def citizens_day(holidays: Set[datetime], d1: datetime, d2: datetime):
+    if d1 in holidays and d2 in holidays:
+        if d1.weekday() in (0, 1, 2):
+            holidays.add(plus_days(d1, 1))
+
+
 def easter(year: int) -> datetime:
     a = year % 19
     b = year // 100
@@ -293,6 +299,116 @@ class HolidayCalendar(object):
         holidays.add(datetime.datetime(2018, 12, 5))  # Death of George H.W.Bush
         add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
         return holidays
+
+    @staticmethod
+    def gen_jpto():
+        holidays = set()
+        for y in range(1950, 2100):
+            # New year
+            holidays.add(datetime.datetime(y, 1, 1))
+            holidays.add(datetime.datetime(y, 1, 2))
+            holidays.add(datetime.datetime(y, 1, 3))
+            # Coming of age
+            if y >= 2000:
+                holidays.add(day_of_week_in_month(y, 1, 0, 2))
+            else:
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 1, 15)))
+
+            # National foundation
+            if y >= 1967:
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 2, 11)))
+
+            # vernal equinox (from 1948), 20th or 21st (predictions/facts  2000 to 2030
+            if y in {2000, 2001, 2004, 2005, 2008, 2009, 2012, 2013, 2016, 2017, 2020, 2021,
+                     2024, 2025, 2026, 2028, 2029, 2030}:
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 3, 20)))
+            else:
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 3, 21)))
+
+            # Showa (from 2007 onwards), greenery (from 1989 to 2006), emperor (before 1989)
+            holidays.add(bump_sun_to_mon(datetime.datetime(y, 4, 29)))
+            # constitution (from 1948)
+            if y >= 1985:
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 5, 3)))
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 5, 4)))
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 5, 5)))
+                if y >= 2007 and datetime.datetime(y, 5, 3).weekday() == 6 or datetime.datetime(y, 5, 3).weekday() == 6:
+                    holidays.add(datetime.datetime(y, 5, 6))
+                else:
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 5, 3)))
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 5, 5)))
+                # Marine
+                if y == 2021:
+                    # Moved because of the Olympics
+                    holidays.add(datetime.datetime(y, 7, 22))
+                elif y == 2020:
+                    # Moved because of the Olympics (day prior to opening ceremony)
+                    holidays.add(datetime.datetime(y, 7, 23))
+                elif y >= 2003:
+                    holidays.add(day_of_week_in_month(y, 7, 0, 3))
+                elif y >= 1996:
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 7, 20)))
+
+                # Mountain
+                if y == 2021:
+                    # Moved because of the Olympics
+                    holidays.add(datetime.datetime(y, 8, 9))
+                elif y == 2020:
+                    # Moved because of the Olympics (day after closing ceremony)
+                    holidays.add(datetime.datetime(y, 8, 10))
+                elif y >= 2016:
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 8, 11)))
+
+                # Aged
+                if y >= 2003:
+                    holidays.add(day_of_week_in_month(y, 9, 0, 3))
+                elif y >= 1966:
+                    holidays.add(datetime.datetime(y, 9, 15))
+
+                # Autumn equinox (from 1948), 22nd or 23rd (predictions/facts 2000 to 2030)
+                if y in {2012, 2016, 2020, 2024, 2028}:
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 9, 22)))
+                else:
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 9, 23)))
+                citizens_day(holidays, datetime.datetime(y, 9, 20), datetime.datetime(y, 9, 22))
+                citizens_day(holidays, datetime.datetime(y, 9, 21), datetime.datetime(y, 9, 23))
+
+                # Health-sports
+                if y == 2021:
+                    # Moved because of the Olympics
+                    holidays.add(datetime.datetime(y, 7, 23))
+                elif y == 2020:
+                    # Moved because of the Olympics (day after closing ceremony)
+                    holidays.add(datetime.datetime(y, 7, 24))
+                elif y >= 2000:
+                    holidays.add(day_of_week_in_month(y, 10, 0, 2))
+                elif y >= 1966:
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 10, 10)))
+
+                # Culture (from 1948)
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 11, 3)))
+                # Labor (from 1948)
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 11, 23)))
+                # Emperor (current emperor birthday)
+                if 1990 <= y < 2019:
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 12, 23)))
+                elif y >= 2020:
+                    holidays.add(bump_sun_to_mon(datetime.datetime(y, 2, 23)))
+                # New years eve - bank of Japan, but not national holiday
+                holidays.add(bump_sun_to_mon(datetime.datetime(y, 12, 31)))
+
+            holidays.add(datetime.datetime(1959, 4, 10))  # Marriage Akihito
+            holidays.add(datetime.datetime(1989, 2, 24))  # Funeral Showa
+            holidays.add(datetime.datetime(1990, 11, 12))  # Enthrone Akihito
+            holidays.add(datetime.datetime(1993, 6, 9))  # Marriage Naruhito
+            holidays.add(datetime.datetime(2019, 4, 30))  # Abdication
+            holidays.add(datetime.datetime(2019, 5, 1))  # Accession
+            holidays.add(datetime.datetime(2019, 5, 2))  # Accession
+            holidays.add(datetime.datetime(2019, 10, 22))  # Enthronement
+
+        add_sat_sun(holidays, datetime.datetime(1950, 1, 1), plus_days(datetime.datetime(2100, 12, 31), -1))
+        return holidays
+
 
     @staticmethod
     def gen_gblo():
