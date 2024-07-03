@@ -206,7 +206,7 @@ class PeriodicSchedule(object):
         csd_dt, csd_dc = self.calculated_start_date()
         adj = [csd_dc.adjust(csd_dt, cal)]
 
-        for i in range(1, len(unadj)):
+        for i in range(1, len(unadj) - 1):
             adj.append(self.bday_adj.adjust(unadj[i], cal))
 
         ced_dt, ced_dc = self.calculated_end_date()

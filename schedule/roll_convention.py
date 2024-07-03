@@ -68,14 +68,14 @@ class RollConvention(object):
         return isinstance(other, type(self)) and self.name == other.name
 
     def matches(self, dt: datetime) -> bool:
-        if self.name.name.startswith('DAY_') and self.name != RollConventionType.DAY_31:
-            day = int(self.name.name.split('_')[-1])
-            return dt.day == day or \
-                (dt.month == 2 and day >= calendar.monthrange(dt.year, dt.month)[1] and
-                 dt.day == calendar.monthrange(dt.year, dt.month)[1])
-        elif self.name.name.startswith('WEEKDAY_'):
-            day = self.name.name.split('_')[-1]
-            return dt.weekday() == {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}[day]
+        # if self.name.name.startswith('DAY_') and self.name != RollConventionType.DAY_31:
+        #     day = int(self.name.name.split('_')[-1])
+        #     return dt.day == day or \
+        #         (dt.month == 2 and day >= calendar.monthrange(dt.year, dt.month)[1] and
+        #          dt.day == calendar.monthrange(dt.year, dt.month)[1])
+        # elif self.name.name.startswith('WEEKDAY_'):
+        #     day = self.name.name.split('_')[-1]
+        #     return dt.weekday() == {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}[day]
         return self.adjust(dt) == dt
 
     def adjust(self, dt: datetime) -> datetime:
