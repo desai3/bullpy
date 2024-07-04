@@ -125,7 +125,7 @@ class PeriodicSchedule(object):
 
     def _calculated_unadjusted_start_date(self, cal: HolidayCalendar | None = None) -> datetime:
         if cal is not None and self.roll_conv is not None and (
-                self.start_dt_bday_adj == BDayAdj(BDayAdjType.NONE) or
+                self.start_date_bday_adj == BDayAdj(BDayAdjType.NO_ADJUST) or
                 self.roll_conv == RollConvention(RollConventionType.EOM)
         ):
             return self._calculated_unadjusted_date_from_adjusted(self.start_date, self.roll_conv, self.bday_adj, cal)
@@ -268,7 +268,7 @@ class PeriodicSchedule(object):
                             explicit_final_stub: bool,
                             explicit_end: datetime):
 
-        if not roll_conv.matches(start):
+        if not roll_conv.matches(end):
             raise ValueError(f"start date {start} does not match roll convention {roll_conv}")
 
         dates = deque()
@@ -281,18 +281,18 @@ class PeriodicSchedule(object):
             dates.appendleft(temp)
             temp = roll_conv.previous(temp, freq)
 
-        stub = not temp.equals(start)
-        if stub and len(dates) > 1 and stub_conv.isstub_long(start, dates[0]):
+        stub = temp != start
+        if stub and len(dates) > 1 and stub_conv.is_stub_long(start, dates[0]):
             dates.popleft()
         dates.appendleft(explicit_start)
-        return dates.tolist()
+        return list(dates)
 
     def _generate_unadjusted_dates(self,
                                    start: datetime,
                                    reg_start: datetime,
                                    reg_end: datetime,
                                    end: datetime,
-                                   roll_conv: RollConvention):
+                                   roll_conv: RollConvention) -> List[datetime]:
         override_start = self.override_start_date[0] if self.override_start_date is not None else start
         explicit_init_stub = start != reg_start
         explicit_final_stub = end != reg_end
@@ -309,11 +309,11 @@ class PeriodicSchedule(object):
                 self.first_reg_start_date is None and \
                 not roll_conv.matches(reg_start) and \
                 roll_conv.matches(override_start):
-            return self._generate_backwards(reg_start, reg_end, self.freq, roll_conv, stub_conv, override_start,
-                                            explicit_final_stub, end)
+            return self._gen_unadjusted_dates(override_start, reg_end, roll_conv, stub_conv, explicit_init_stub,
+                                              override_start, explicit_final_stub, end)
         else:
-            return self._generate_forwards(reg_start, reg_end, self.freq, roll_conv, stub_conv, explicit_init_stub,
-                                           override_start, explicit_final_stub, end)
+            return self._gen_unadjusted_dates(reg_start, reg_end, roll_conv, stub_conv, explicit_init_stub,
+                                              override_start, explicit_final_stub, end)
 
     def _gen_unadjusted_dates(self,
                               reg_start: datetime,

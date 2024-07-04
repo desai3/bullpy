@@ -20,7 +20,9 @@ class BDayAdj(object):
         self.cal = cal
 
     def __eq__(self, other):
-        return self.adj_type == other.adj_type and self.cal == other.cal
+        if isinstance(self, BDayAdj) and isinstance(other, BDayAdj):
+            return self.adj_type == other.adj_type and self.cal == other.cal
+        return self is None and other is None
 
     def adjust(self, dt: datetime, cal=HolidayCalendar | None) -> datetime:
         return getattr(self, f'adjust_{self.adj_type.name.lower()}')(dt, cal)

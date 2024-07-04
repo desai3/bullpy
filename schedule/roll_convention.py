@@ -67,6 +67,9 @@ class RollConvention(object):
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.name == other.name
 
+    def get_day_of_month(self):
+        return 0
+
     def matches(self, dt: datetime) -> bool:
         # if self.name.name.startswith('DAY_') and self.name != RollConventionType.DAY_31:
         #     day = int(self.name.name.split('_')[-1])
