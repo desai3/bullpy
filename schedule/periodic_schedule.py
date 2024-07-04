@@ -107,11 +107,11 @@ class PeriodicSchedule(object):
                                                   bday_adj: BDayAdj,
                                                   cal: HolidayCalendar | None = None) -> datetime:
         roll_dom = roll_conv.get_day_of_month()
-        if roll_dom > 0 and base_dt.day() != roll_dom:
-            length_of_month = calendar.monthrange(base_dt.year(), base_dt.month())[1]
+        if roll_dom > 0 and base_dt.day != roll_dom:
+            length_of_month = calendar.monthrange(base_dt.year, base_dt.month)[1]
             act_dom = min(roll_dom, length_of_month)
-            if base_dt.month() != act_dom:
-                roll_implied_dt = datetime.datetime(base_dt.year(), base_dt.month(), act_dom)
+            if base_dt.month != act_dom:
+                roll_implied_dt = datetime(base_dt.year, base_dt.month, act_dom)
                 adj_dt = bday_adj.adjust(roll_implied_dt, cal)
                 if adj_dt == base_dt:
                     return roll_implied_dt
@@ -340,9 +340,9 @@ class PeriodicSchedule(object):
             return self.stub_conv.to_implicit(explicit_init_stub, explicit_final_stub)
 
         if self.roll_conv is not None and not explicit_init_stub and not explicit_final_stub:
-            if self.roll_conv.get_day_of_month() == reg_end.month:
+            if self.roll_conv.get_day_of_month() == reg_end.day:
                 return StubConvention(StubConventionType.SMART_INITIAL)
-            if self.roll_conv.get_day_of_month() == reg_end.month:
+            if self.roll_conv.get_day_of_month() == reg_end.day:
                 return StubConvention(StubConventionType.SMART_FINAL)
         return StubConvention(StubConventionType.NONE)
 

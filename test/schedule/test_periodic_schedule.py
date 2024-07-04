@@ -432,12 +432,12 @@ def data_gen():
         #  [JUN_17, JUL_17, AUG_18, SEP_17], RollConvention(RollConventionType.DAY_17)],
 
         # stub None derive from roll convention
-        [JUN_04, SEP_17, Frequency(months=1), None, RollConvention(RollConventionType.DAY_17), BDA, None, None, None,
-         [JUN_04, JUN_17, JUL_17, AUG_17, SEP_17],
-         [JUN_04, JUN_17, JUL_17, AUG_18, SEP_17], RollConvention(RollConventionType.DAY_17)],
-        # [JUN_04, SEP_17, Frequency(months=1), None, RollConvention(RollConventionType.DAY_4), BDA, None, None, None,
-        #  [JUN_04, JUL_04, AUG_04, SEP_04, SEP_17],
-        #  [JUN_04, JUL_04, AUG_04, SEP_04, SEP_17], RollConvention(RollConventionType.DAY_4)],
+        # [JUN_04, SEP_17, Frequency(months=1), None, RollConvention(RollConventionType.DAY_17), BDA, None, None, None,
+        #  [JUN_04, JUN_17, JUL_17, AUG_17, SEP_17],
+        #  [JUN_04, JUN_17, JUL_17, AUG_18, SEP_17], RollConvention(RollConventionType.DAY_17)],
+        [JUN_04, SEP_17, Frequency(months=1), None, RollConvention(RollConventionType.DAY_4), BDA, None, None, None,
+         [JUN_04, JUL_04, AUG_04, SEP_04, SEP_17],
+         [JUN_04, JUL_04, AUG_04, SEP_04, SEP_17], RollConvention(RollConventionType.DAY_4)],
 
         # # near end of month
         # # RollConvention(RollConventionType.EOM) flag false, thus roll on 30 th
