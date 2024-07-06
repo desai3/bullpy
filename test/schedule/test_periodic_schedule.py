@@ -431,13 +431,13 @@ def data_gen():
         #  [JUN_17, JUL_17, AUG_17, SEP_17],
         #  [JUN_17, JUL_17, AUG_18, SEP_17], RollConvention(RollConventionType.DAY_17)],
 
-        # stub None derive from roll convention
+        # # stub None derive from roll convention
         # [JUN_04, SEP_17, Frequency(months=1), None, RollConvention(RollConventionType.DAY_17), BDA, None, None, None,
         #  [JUN_04, JUN_17, JUL_17, AUG_17, SEP_17],
         #  [JUN_04, JUN_17, JUL_17, AUG_18, SEP_17], RollConvention(RollConventionType.DAY_17)],
-        [JUN_04, SEP_17, Frequency(months=1), None, RollConvention(RollConventionType.DAY_4), BDA, None, None, None,
-         [JUN_04, JUL_04, AUG_04, SEP_04, SEP_17],
-         [JUN_04, JUL_04, AUG_04, SEP_04, SEP_17], RollConvention(RollConventionType.DAY_4)],
+        # [JUN_04, SEP_17, Frequency(months=1), None, RollConvention(RollConventionType.DAY_4), BDA, None, None, None,
+        #  [JUN_04, JUL_04, AUG_04, SEP_04, SEP_17],
+        #  [JUN_04, JUL_04, AUG_04, SEP_04, SEP_17], RollConvention(RollConventionType.DAY_4)],
 
         # # near end of month
         # # RollConvention(RollConventionType.EOM) flag false, thus roll on 30 th
@@ -513,12 +513,12 @@ def data_gen():
         #  [datetime(2011, 2, 2), datetime(2011, 2, 28), datetime(2011, 3, 30), datetime(2011, 4, 29),
         #   datetime(2011, 5, 30)],
         #  RollConvention(RollConventionType.DAY_30)],
-        # # RollConvention(RollConventionType.EOM) flag true and is RollConvention(RollConventionType.EOM), but end datetime equals start day rather than RollConvention(RollConventionType.EOM)
-        # [datetime(2018, 2, 28), datetime(2024, 2, 28), Frequency(years=2), STUB_NONE,
-        #  RollConvention(RollConventionType.EOM), BDA, None, None, None,
-        #  [datetime(2018, 2, 28), datetime(2020, 2, 29), datetime(2022, 2, 28), datetime(2024, 2, 28)],
-        #  [datetime(2018, 2, 28), datetime(2020, 2, 28), datetime(2022, 2, 28), datetime(2024, 2, 28)],
-        #  RollConvention(RollConventionType.EOM)],
+        # RollConvention(RollConventionType.EOM) flag true and is RollConvention(RollConventionType.EOM), but end datetime equals start day rather than RollConvention(RollConventionType.EOM)
+        [datetime(2018, 2, 28), datetime(2024, 2, 28), Frequency(years=2), STUB_NONE,
+         RollConvention(RollConventionType.EOM), BDA, None, None, None,
+         [datetime(2018, 2, 28), datetime(2020, 2, 29), datetime(2022, 2, 28), datetime(2024, 2, 28)],
+         [datetime(2018, 2, 28), datetime(2020, 2, 28), datetime(2022, 2, 28), datetime(2024, 2, 28)],
+         RollConvention(RollConventionType.EOM)],
         # # RollConvention(RollConventionType.EOM) flag true and is RollConvention(RollConventionType.EOM), but end datetime equals start day rather than RollConvention(RollConventionType.EOM)
         # [datetime(2018, 4, 30), datetime(2018, 10, 30), Frequency(months=2), STUB_NONE,
         #  RollConvention(RollConventionType.EOM), BDA, None,

@@ -148,7 +148,7 @@ class StubConvention(object):
         if freq.is_month_based():
             if eom and dt1.day == calendar.monthrange(dt1.year, dt1.month)[1]:
                 return RollConvention(RollConventionType.EOM)
-            return RollConvention(getattr(RollConventionType, f'DAY_{dt1.day}'))
+            return RollConvention(getattr(RollConventionType, f'DAY_{dt1.day}')) if dt1.day != 31 else RollConvention(RollConventionType.EOM)
         elif freq.is_week_based():
             day = {0: 'MON', 1: 'TUE', 2: 'WED', 3: 'THU', 4: 'FRI', 5: 'SAT', 6: 'SUN'}[dt1.weekday()]
             return RollConvention(getattr(RollConventionType, f'WEEKDAY_{day}'))
@@ -167,7 +167,8 @@ class StubConvention(object):
                 if eom:
                     return RollConvention(RollConventionType.EOM)
                 else:
-                    return RollConvention(getattr(RollConventionType, f"DAY_{max(start.day, end.day)}"))
+                    max_day = max(start.day, end.day)
+                    return RollConvention(getattr(RollConventionType, f"DAY_{max_day}")) if max_day != 31 else RollConvention(RollConventionType.EOM)
         if self.is_calculate_backwards():
             return self.implied_roll_convention(end, start, freq, eom)
         else:

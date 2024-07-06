@@ -188,7 +188,7 @@ class PeriodicSchedule(object):
 
         if cal is not None and self.roll_conv is not None:
             return self._calculated_unadjusted_date_from_adjusted(
-                self.last_regulard_end_date, self.roll_conv, self.bday_adj, cal)
+                self.last_regular_end_date, self.roll_conv, self.bday_adj, cal)
         return self.last_regular_end_date
 
     def calculated_last_regular_end_date(self):
@@ -342,7 +342,7 @@ class PeriodicSchedule(object):
         if self.roll_conv is not None and not explicit_init_stub and not explicit_final_stub:
             if self.roll_conv.get_day_of_month() == reg_end.day:
                 return StubConvention(StubConventionType.SMART_INITIAL)
-            if self.roll_conv.get_day_of_month() == reg_end.day:
+            if self.roll_conv.get_day_of_month() == reg_start.day:
                 return StubConvention(StubConventionType.SMART_FINAL)
         return StubConvention(StubConventionType.NONE)
 
